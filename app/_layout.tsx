@@ -6,38 +6,34 @@ export default function Layout() {
     <PaperProvider>
       <Stack
         screenOptions={{
-          headerStyle: {
-            backgroundColor: '#fff',
-          },
-          headerTintColor: '#000',
-        }}
-      >
+          headerShown: false,
+        }}>
         <Stack.Screen
-          name='index'
+          name="index"
           options={{
             title: 'コーヒー日記',
           }}
         />
         <Stack.Screen
-          name='entryList'
+          name="entryList"
           options={{
             title: '記録一覧',
           }}
         />
         <Stack.Screen
-          name='newEntry'
+          name="newEntry"
           options={{
             title: '新規記録',
           }}
         />
         <Stack.Screen
-          name='entryDetail/[id]'
+          name="entryDetail/[id]"
           options={{
             title: '記録詳細',
           }}
         />
         <Stack.Screen
-          name='editEntry/[id]'
+          name="editEntry/[id]"
           options={{
             title: '記録編集',
           }}

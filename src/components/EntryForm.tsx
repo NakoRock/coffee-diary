@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, IconButton } from 'react-native-paper';
 import { CoffeeEntry } from '../types';
+import { CoffeeColors, CoffeeTypography } from '../../constants/CoffeeTheme';
 
 interface EntryFormProps {
   initialValues?: Omit<CoffeeEntry, 'id'>;
@@ -86,7 +87,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
 
       <Text style={styles.sectionTitle}>抽出ステップ</Text>
       {extractionSteps.map((step, index) => (
-        <View key={index} style={styles.stepContainer}>
+        <View key={index} style={styles.stepRow}>
           <TextInput
             label="時間 (秒)"
             value={step.time.toString()}
@@ -106,12 +107,12 @@ export const EntryForm: React.FC<EntryFormProps> = ({
               icon="delete"
               mode="outlined"
               onPress={() => handleRemoveStep(index)}
-              style={styles.deleteStepButton}
+              style={styles.deleteButton}
             />
           )}
         </View>
       ))}
-      <Button mode="outlined" onPress={handleAddStep} style={styles.addStepButton}>
+      <Button mode="outlined" onPress={handleAddStep} style={styles.addButton}>
         ステップを追加
       </Button>
 
@@ -131,27 +132,27 @@ export const EntryForm: React.FC<EntryFormProps> = ({
       />
 
       <Text style={styles.sectionTitle}>味の評価 (1-5)</Text>
-      <View style={styles.ratingContainer}>
+      <View style={styles.tasteRow}>
         <TextInput
           label="酸味"
           value={acidity}
           onChangeText={setAcidity}
           keyboardType="numeric"
-          style={styles.ratingInput}
+          style={styles.tasteInput}
         />
         <TextInput
           label="甘み"
           value={sweetness}
           onChangeText={setSweetness}
           keyboardType="numeric"
-          style={styles.ratingInput}
+          style={styles.tasteInput}
         />
         <TextInput
           label="苦味"
           value={bitterness}
           onChangeText={setBitterness}
           keyboardType="numeric"
-          style={styles.ratingInput}
+          style={styles.tasteInput}
         />
       </View>
 
@@ -168,7 +169,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
         mode="contained"
         onPress={handleSubmit}
         disabled={!isValidForm()}
-        style={styles.button}>
+        style={styles.submitButton}>
         {submitLabel}
       </Button>
     </ScrollView>
@@ -183,11 +184,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    ...CoffeeTypography.bodyLarge,
     fontWeight: 'bold',
     marginBottom: 8,
+    color: CoffeeColors.text,
   },
-  stepContainer: {
+  stepRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
@@ -196,23 +198,24 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 4,
   },
-  deleteStepButton: {
+  deleteButton: {
     margin: 0,
   },
-  addStepButton: {
+  addButton: {
     marginBottom: 16,
   },
-  ratingContainer: {
+  tasteRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 16,
   },
-  ratingInput: {
+  tasteInput: {
     flex: 1,
     marginHorizontal: 4,
   },
-  button: {
+  submitButton: {
     marginTop: 16,
     marginBottom: 32,
   },
 });
+

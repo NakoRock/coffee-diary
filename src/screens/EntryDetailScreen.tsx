@@ -112,16 +112,14 @@ export const EntryDetailScreen: React.FC = () => {
         <Button
           mode="contained"
           onPress={() => router.push(`/editEntry/${entry.id}`)}
-          style={styles.button}
-        >
+          style={styles.button}>
           編集
         </Button>
         <Button
           mode="outlined"
           onPress={() => setDeleteDialogVisible(true)}
           style={[styles.button, styles.deleteButton]}
-          textColor="red"
-        >
+          textColor="red">
           削除
         </Button>
       </View>
