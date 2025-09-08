@@ -41,7 +41,8 @@ export const EditEntryScreen: React.FC = () => {
     beanType: entry.beanType,
     extractionSteps: entry.extractionSteps,
     temperature: entry.temperature,
-    ratio: entry.ratio,
+    beanAmount: entry.beanAmount,
+    waterAmount: entry.waterAmount,
     taste: entry.taste,
     notes: entry.notes,
   };
@@ -76,4 +77,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

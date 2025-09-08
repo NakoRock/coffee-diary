@@ -45,8 +45,12 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, onPress }) => {
             <Text style={styles.parameterValue}>{entry.temperature}℃</Text>
           </View>
           <View style={styles.parameter}>
-            <Text style={styles.parameterLabel}>比率</Text>
-            <Text style={styles.parameterValue}>{entry.ratio}</Text>
+            <Text style={styles.parameterLabel}>豆の量</Text>
+            <Text style={styles.parameterValue}>{entry.beanAmount}g</Text>
+          </View>
+          <View style={styles.parameter}>
+            <Text style={styles.parameterLabel}>湯量</Text>
+            <Text style={styles.parameterValue}>{entry.waterAmount}g</Text>
           </View>
         </View>
       </View>

@@ -81,8 +81,13 @@ export const EntryDetailScreen: React.FC = () => {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.label}>比率</Text>
-        <Text style={styles.value}>{entry.ratio}</Text>
+        <Text style={styles.label}>豆の量</Text>
+        <Text style={styles.value}>{entry.beanAmount}g</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.label}>湯量</Text>
+        <Text style={styles.value}>{entry.waterAmount}g</Text>
       </View>
 
       <View style={styles.section}>

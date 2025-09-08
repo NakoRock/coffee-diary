@@ -20,19 +20,26 @@ export const EntryForm: React.FC<EntryFormProps> = ({
     initialValues?.extractionSteps || [{ time: 0, grams: 0 }],
   );
   const [temperature, setTemperature] = useState(initialValues?.temperature?.toString() || '');
-  const [ratio, setRatio] = useState(initialValues?.ratio || '');
+  const [beanAmount, setBeanAmount] = useState(initialValues?.beanAmount?.toString() || '');
   const [acidity, setAcidity] = useState(initialValues?.taste.acidity?.toString() || '3');
   const [sweetness, setSweetness] = useState(initialValues?.taste.sweetness?.toString() || '3');
   const [bitterness, setBitterness] = useState(initialValues?.taste.bitterness?.toString() || '3');
   const [notes, setNotes] = useState(initialValues?.notes || '');
 
+  const calculateWaterAmount = () => {
+    if (extractionSteps.length === 0) return 0;
+    return extractionSteps[extractionSteps.length - 1]?.grams || 0;
+  };
+
   const handleSubmit = () => {
+    const waterAmount = calculateWaterAmount();
     const entry: Omit<CoffeeEntry, 'id'> = {
       date: initialValues?.date || new Date().toISOString(),
       beanType,
       extractionSteps,
       temperature: Number(temperature),
-      ratio,
+      beanAmount: Number(beanAmount),
+      waterAmount,
       taste: {
         acidity: Number(acidity),
         sweetness: Number(sweetness),
@@ -50,7 +57,8 @@ export const EntryForm: React.FC<EntryFormProps> = ({
       extractionSteps.every((step) => step.time >= 0 && step.grams > 0) &&
       temperature &&
       !isNaN(Number(temperature)) &&
-      ratio.trim() &&
+      beanAmount.trim() &&
+      !isNaN(Number(beanAmount)) &&
       !isNaN(Number(acidity)) &&
       !isNaN(Number(sweetness)) &&
       !isNaN(Number(bitterness))
@@ -125,9 +133,10 @@ export const EntryForm: React.FC<EntryFormProps> = ({
       />
 
       <TextInput
-        label="比率 (例: 1:15)"
-        value={ratio}
-        onChangeText={setRatio}
+        label="豆の量 (g)"
+        value={beanAmount}
+        onChangeText={setBeanAmount}
+        keyboardType="numeric"
         style={styles.input}
       />
 
@@ -218,4 +227,3 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
 });
-

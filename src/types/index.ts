@@ -3,14 +3,15 @@ export interface CoffeeEntry {
   date: string;
   beanType: string;
   extractionSteps: {
-    time: number;  // 秒数
+    time: number; // 秒数
     grams: number; // グラム値
   }[];
   temperature: number;
-  ratio: string;
+  beanAmount: number; // 豆の量（グラム）
+  waterAmount: number; // 湯量（グラム）
   taste: {
-    acidity: number;    // 1-5の評価
-    sweetness: number;  // 1-5の評価
+    acidity: number; // 1-5の評価
+    sweetness: number; // 1-5の評価
     bitterness: number; // 1-5の評価
   };
   notes: string;
