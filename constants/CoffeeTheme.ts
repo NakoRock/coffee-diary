@@ -1,4 +1,4 @@
-// クラシカルな喫茶店風のカラーテーマ
+// モダンなコーヒー風のカラーテーマ（グラデーション対応）
 export const CoffeeColors = {
   // メインカラー（深いブラウン系）
   primary: '#3C2415',
@@ -10,9 +10,14 @@ export const CoffeeColors = {
   accentDark: '#B8860B',
   accentLight: '#F4E4BC',
 
-  // 背景色（アイボリー/ベージュ系）
-  background: '#FFF8DC',
-  backgroundDark: '#F5F5DC',
+  // グラデーション背景色（ラテ→深煎り）
+  gradientStart: '#F5E6D3', // ラテカラー
+  gradientMid: '#E6D7C3',   // 中間色
+  gradientEnd: '#8B4513',   // 深煎りブラウン
+  
+  // 背景色（ソフトラテ系）
+  background: '#F5E6D3',
+  backgroundDark: '#E6D7C3',
   backgroundLight: '#FFFEF7',
 
   // テキストカラー
@@ -38,24 +43,27 @@ export const CoffeeColors = {
   overlayDark: 'rgba(62, 36, 21, 0.1)',
 };
 
-// タイポグラフィスタイル
+// タイポグラフィスタイル（コーヒーテーマ）
 export const CoffeeTypography = {
   // ヘッダー
   headerLarge: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700' as const,
     color: CoffeeColors.primary,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+    fontFamily: 'serif', // 温かみのあるセリフ体
   },
   headerMedium: {
     fontSize: 24,
     fontWeight: '600' as const,
     color: CoffeeColors.primary,
+    fontFamily: 'serif',
   },
   headerSmall: {
     fontSize: 20,
     fontWeight: '600' as const,
     color: CoffeeColors.primaryDark,
+    fontFamily: 'serif',
   },
 
   // ボディテキスト
@@ -96,17 +104,29 @@ export const CoffeeTypography = {
 
 // 共通のスタイルコンポーネント
 export const CoffeeStyles = {
-  // カード
+  // カード（モダンなデザイン）
   card: {
     backgroundColor: CoffeeColors.surface,
-    borderRadius: 12,
-    elevation: 3,
+    borderRadius: 16, // より丸みを帯びた角
+    elevation: 6,     // より強い影
     shadowColor: CoffeeColors.shadow,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 1,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    borderWidth: 0, // ボーダーレス
+  },
+  
+  // 透明感のあるカード
+  glassCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    borderRadius: 20,
+    elevation: 8,
+    shadowColor: CoffeeColors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
     borderWidth: 1,
-    borderColor: CoffeeColors.border,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
 
   // ボタン

@@ -3,6 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Card, Title, Paragraph, Text } from 'react-native-paper';
 import { CoffeeEntry } from '../types';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
+import { CoffeeIcons } from '../../constants/CoffeeIcons';
 
 interface EntryCardProps {
   entry: CoffeeEntry;
@@ -24,13 +25,13 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, onPress }) => {
       {/* ヘッダー部分 */}
       <View style={styles.cardHeader}>
         <View style={styles.beanIconContainer}>
-          <Text style={styles.beanIcon}>🌱</Text>
+          <Text style={styles.beanIcon}>{CoffeeIcons.coffeeBean}</Text>
         </View>
         <View style={styles.headerInfo}>
           <Text style={styles.beanType}>{entry.beanType}</Text>
           <Text style={styles.dateText}>{new Date(entry.date).toLocaleDateString('ja-JP')}</Text>
         </View>
-        <Text style={styles.brewIcon}>☕</Text>
+        <Text style={styles.brewIcon}>{CoffeeIcons.coffeeCup}</Text>
       </View>
 
       {/* 抽出情報 */}

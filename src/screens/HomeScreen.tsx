@@ -11,33 +11,41 @@ import { Button, Text, Card } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEntries } from '../hooks/useEntries';
+import { useStats } from '../hooks/useStats';
 import { EntryCard } from '../components/EntryCard';
+import { DashboardWidget } from '../components/DashboardWidget';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
+import { CoffeeIcons } from '../../constants/CoffeeIcons';
 
 const { height } = Dimensions.get('window');
 
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
   const { entries } = useEntries();
+  const stats = useStats(entries);
 
   const recentEntries = entries.slice(0, 3);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1" style={styles.container}>
       {/* 背景画像セクション（タイトル上部のみ） */}
-      <View style={[styles.backgroundSection, {height: height * 0.5}]}>
+      <View style={[styles.backgroundSection, { height: height * 0.5 }]}>
         <ImageBackground
           source={require('../../assets/images/main.png')}
+          className="flex-1"
           style={styles.backgroundImage}
           resizeMode="cover">
           <LinearGradient
             colors={[
               'transparent',
-              'rgba(255, 248, 220, 0.6)',
-              'rgba(255, 248, 220, 0.9)',
-              '#FFF8DC',
+              'rgba(245, 230, 211, 0.6)',
+              'rgba(245, 230, 211, 0.9)',
+              '#F5E6D3',
             ]}
-            style={[styles.gradient, {bottom: (height * 0.5 - height * 0.2) * -1, height: height * 0.2}]}
+            style={[
+              styles.gradient,
+              { bottom: (height * 0.5 - height * 0.2) * -1, height: height * 0.2 },
+            ]}
           />
         </ImageBackground>
       </View>
@@ -45,17 +53,25 @@ export const HomeScreen: React.FC = () => {
       {/* 固定ヘッダーセクション */}
       <View style={styles.fixedHeader}>
         <View style={styles.headerContent}>
-          <Text style={styles.title}>コーヒー日記</Text>
-          <View style={styles.statsContainer}>
-            <Text style={styles.statsEmoji}>☕</Text>
-            <Text style={styles.statsText}>記録件数：{entries.length}件</Text>
-          </View>
           <Text style={styles.subtitle}>今日も素敵なコーヒータイムを</Text>
+        </View>
+        {/* ダッシュボード統計 */}
+        <View style={styles.dashboardContainer}>
+          <Text style={styles.dashboardTitle}>今週の統計</Text>
+          <View style={styles.statsGrid}>
+            <DashboardWidget
+              title="今週の杯数"
+              value={`${stats.weeklyCount}杯`}
+              icon={CoffeeIcons.coffeeCup}
+              color={CoffeeColors.accent}
+            />
+          </View>
         </View>
       </View>
 
       {/* メインコンテンツセクション */}
       <ScrollView
+        className="flex-1"
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
@@ -63,13 +79,15 @@ export const HomeScreen: React.FC = () => {
         {recentEntries.length > 0 && (
           <View style={styles.recentEntriesContainer}>
             <Text style={styles.recentEntriesTitle}>最近の記録</Text>
-            {recentEntries.map((entry) => (
-              <EntryCard
-                key={entry.id}
-                entry={entry}
-                onPress={() => router.push(`/entryDetail/${entry.id}`)}
-              />
-            ))}
+            <View style={styles.cardsContainer}>
+              {recentEntries.map((entry) => (
+                <EntryCard
+                  key={entry.id}
+                  entry={entry}
+                  onPress={() => router.push(`/entryDetail/${entry.id}`)}
+                />
+              ))}
+            </View>
           </View>
         )}
 
@@ -80,31 +98,35 @@ export const HomeScreen: React.FC = () => {
       {/* 固定ボタンセクション（画面下部） */}
       <View style={styles.fixedButtons}>
         {/* メインボタンセクション */}
-        <View style={styles.mainButtonsRow}>
-          <TouchableOpacity
-            style={styles.newEntryButton}
-            onPress={() => router.push('/newEntry')}>
-            <Text style={styles.buttonEmoji}>📝</Text>
-            <Text style={styles.newEntryButtonTitle}>新規記録</Text>
-            <Text style={styles.newEntryButtonSubtitle}>今日の一杯を記録する</Text>
-          </TouchableOpacity>
+        <View style={styles.mainCardsRow}>
+          <View className="flex-row justify-center">
+            <TouchableOpacity
+              style={styles.extractionCard}
+              className="flex-1"
+              onPress={() => router.push('/newEntry')}>
+              <Text style={styles.buttonEmoji}>{CoffeeIcons.extraction}</Text>
+              <Text style={styles.extractionCardTitle}>新規記録</Text>
+              <Text style={styles.extractionCardSubtitle}>抽出の日記をつける</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.entryListButton}
-            onPress={() => router.push('/entryList')}>
-            <Text style={styles.buttonEmoji}>📚</Text>
-            <Text style={styles.entryListButtonTitle}>記録一覧</Text>
-            <Text style={styles.entryListButtonSubtitle}>過去の記録を見る</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-1"
+              style={styles.entryListCard}
+              onPress={() => router.push('/entryList')}>
+              <Text style={styles.buttonEmoji}>{CoffeeIcons.entryList}</Text>
+              <Text style={styles.entryListCardTitle}>記録一覧</Text>
+              <Text style={styles.entryListCardSubtitle}>過去の記録を見る</Text>
+              <Text style={styles.entryListCardSubtitle}>（{entries.length}件）</Text>
+            </TouchableOpacity>
+          </View>
+          {/* <TouchableOpacity
+            style={styles.extractionCard}
+            onPress={() => router.push('/extraction')}>
+            <Text style={styles.buttonEmoji}>{CoffeeIcons.extraction}</Text>
+            <Text style={styles.extractionCardTitle}>抽出機能</Text>
+            <Text style={styles.extractionCardSubtitle}>タイマーで計測する</Text>
+          </TouchableOpacity> */}
         </View>
-
-        {/* 抽出機能ボタン */}
-        <TouchableOpacity
-          style={styles.extractionButton}
-          onPress={() => router.push('/extraction')}>
-          <Text style={styles.extractionButtonEmoji}>⏱️</Text>
-          <Text style={styles.extractionButtonText}>抽出機能</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -112,8 +134,7 @@ export const HomeScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#FFF8DC',
+    backgroundColor: CoffeeColors.background,
   },
   backgroundSection: {
     position: 'absolute',
@@ -123,7 +144,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   backgroundImage: {
-    flex: 1,
     width: '100%',
   },
   gradient: {
@@ -139,18 +159,10 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     alignItems: 'center',
-    marginBottom: 40,
+
     paddingVertical: 20,
   },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#3C2415',
-    textShadowColor: 'rgba(255, 255, 255, 0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
+
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -165,21 +177,18 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   statsText: {
-    fontSize: 16,
+    ...CoffeeTypography.bodyLarge,
     fontWeight: '600',
-    color: '#3C2415',
   },
   subtitle: {
-    fontSize: 14,
+    ...CoffeeTypography.bodyMedium,
     fontStyle: 'italic',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    color: '#3C2415',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   scrollView: {
-    flex: 1,
     zIndex: 1,
   },
   scrollContent: {
@@ -189,16 +198,31 @@ const styles = StyleSheet.create({
   },
   recentEntriesContainer: {
     marginHorizontal: 10,
-    borderRadius: 12,
-    padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    ...CoffeeStyles.glassCard,
+    padding: 20,
   },
   recentEntriesTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...CoffeeTypography.headerMedium,
     textAlign: 'center',
     marginBottom: 16,
-    color: '#6B4423',
+  },
+  cardsContainer: {
+    gap: 12,
+  },
+  // ダッシュボードスタイル
+  dashboardContainer: {
+    marginHorizontal: 10,
+    marginBottom: 20,
+    ...CoffeeStyles.glassCard,
+    padding: 20,
+  },
+  dashboardTitle: {
+    ...CoffeeTypography.headerMedium,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  statsGrid: {
+    gap: 12,
   },
   bottomSpacer: {
     height: 50,
@@ -212,93 +236,84 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderTopWidth: 1,
-    backgroundColor: '#FFF8DC',
+    backgroundColor: CoffeeColors.background,
     borderTopColor: 'rgba(139, 69, 19, 0.1)',
     zIndex: 3,
   },
-  mainButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  newEntryButton: {
-    flex: 1,
-    marginHorizontal: 4,
+  mainCardsRow: {},
+  entryListCard: {
+    ...CoffeeStyles.card,
     paddingVertical: 20,
     paddingHorizontal: 16,
-    borderRadius: 12,
     alignItems: 'center',
-    backgroundColor: '#6B4423',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  entryListButton: {
-    flex: 1,
-    marginHorizontal: 4,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    backgroundColor: '#D2B48C',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: CoffeeColors.accentLight,
   },
   buttonEmoji: {
     fontSize: 24,
     marginBottom: 8,
   },
-  newEntryButtonTitle: {
+  newEntryCardTitle: {
+    ...CoffeeTypography.headerSmall,
     fontSize: 16,
-    fontWeight: 'bold',
     marginBottom: 4,
     color: '#FFFFFF',
   },
-  newEntryButtonSubtitle: {
-    fontSize: 12,
+  newEntryCardSubtitle: {
+    ...CoffeeTypography.bodySmall,
     textAlign: 'center',
-    color: '#8B4513',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
-  entryListButtonTitle: {
+  entryListCardTitle: {
+    ...CoffeeTypography.headerSmall,
     fontSize: 16,
-    fontWeight: 'bold',
     marginBottom: 4,
-    color: '#6B4423',
+    color: CoffeeColors.primary,
   },
-  entryListButtonSubtitle: {
-    fontSize: 12,
+  entryListCardSubtitle: {
+    ...CoffeeTypography.bodySmall,
     textAlign: 'center',
-    color: '#8B4513',
+    color: CoffeeColors.textSecondary,
   },
-  extractionButton: {
-    marginHorizontal: 20,
-    marginBottom: 28,
-    paddingVertical: 16,
-    borderRadius: 24,
-    flexDirection: 'row',
+  extractionCard: {
+    ...CoffeeStyles.card,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    backgroundColor: CoffeeColors.gradientMid,
+  },
+  extractionCardTitle: {
+    ...CoffeeTypography.headerSmall,
+    fontSize: 16,
+    marginBottom: 4,
+    color: CoffeeColors.primary,
+  },
+  extractionCardSubtitle: {
+    ...CoffeeTypography.bodySmall,
+    textAlign: 'center',
+    color: CoffeeColors.textSecondary,
+  },
+  // FAB スタイル
+  fabContainer: {
+    position: 'absolute',
+    bottom: 120,
+    right: 20,
+    zIndex: 10,
+  },
+  fab: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5DEB3',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    elevation: 12,
+    shadowColor: CoffeeColors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
-  extractionButtonEmoji: {
-    fontSize: 20,
-    marginRight: 8,
-  },
-  extractionButtonText: {
+  fabIcon: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#6B4423',
+    color: '#FFFFFF',
+    position: 'absolute',
   },
 });
-
