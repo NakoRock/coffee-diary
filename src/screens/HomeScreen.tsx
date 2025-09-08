@@ -6,6 +6,7 @@ import {
   ImageBackground,
   Dimensions,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { Button, Text, Card } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,33 +32,19 @@ export const HomeScreen: React.FC = () => {
       {/* 背景画像セクション（タイトル上部のみ） */}
       <View style={[styles.backgroundSection, { height: height * 0.5 }]}>
         <ImageBackground
-          source={require('../../assets/images/main.png')}
+          source={require('../../assets/images/main.jpg')}
           className="flex-1"
           style={styles.backgroundImage}
-          resizeMode="cover">
-          <LinearGradient
-            colors={[
-              'transparent',
-              'rgba(245, 230, 211, 0.6)',
-              'rgba(245, 230, 211, 0.9)',
-              '#F5E6D3',
-            ]}
-            style={[
-              styles.gradient,
-              { bottom: (height * 0.5 - height * 0.2) * -1, height: height * 0.2 },
-            ]}
-          />
-        </ImageBackground>
+          resizeMode="cover"></ImageBackground>
       </View>
 
       {/* 固定ヘッダーセクション */}
-      <View style={styles.fixedHeader}>
+      <View className="flex-col justify-end" style={styles.fixedHeader}>
         <View style={styles.headerContent}>
           <Text style={styles.subtitle}>今日も素敵なコーヒータイムを</Text>
         </View>
         {/* ダッシュボード統計 */}
-        <View style={styles.dashboardContainer}>
-          <Text style={styles.dashboardTitle}>今週の統計</Text>
+        <View className="" style={styles.dashboardContainer}>
           <View style={styles.statsGrid}>
             <DashboardWidget
               title="今週の杯数"
@@ -65,67 +52,41 @@ export const HomeScreen: React.FC = () => {
               icon={CoffeeIcons.coffeeCup}
               color={CoffeeColors.accent}
             />
-          </View>
-        </View>
-      </View>
+          </View>{' '}
+          {/* 固定ボタンセクション（画面下部） */}
+          <View className="p-2" style={styles.fixedButtons}>
+            {/* メインボタンセクション */}
+            <View style={styles.mainCardsRow}>
+              <View className="flex-row justify-center">
+                <TouchableOpacity
+                  style={styles.extractionCard}
+                  className="flex-1 mr-2"
+                  onPress={() => router.push('/newEntry')}>
+                  <Text style={styles.buttonEmoji}>{CoffeeIcons.newEntry}</Text>
+                  <Text style={styles.extractionCardTitle}>新規記録</Text>
+                </TouchableOpacity>
 
-      {/* メインコンテンツセクション */}
-      <ScrollView
-        className="flex-1"
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
-        {/* 最近の記録 */}
-        {recentEntries.length > 0 && (
-          <View style={styles.recentEntriesContainer}>
-            <Text style={styles.recentEntriesTitle}>最近の記録</Text>
-            <View style={styles.cardsContainer}>
-              {recentEntries.map((entry) => (
-                <EntryCard
-                  key={entry.id}
-                  entry={entry}
-                  onPress={() => router.push(`/entryDetail/${entry.id}`)}
+                <TouchableOpacity
+                  className="flex-1"
+                  style={styles.entryListCard}
+                  onPress={() => router.push('/entryList')}>
+                  <Text style={styles.buttonEmoji}>{CoffeeIcons.entryList}</Text>
+                  <Text style={styles.entryListCardTitle}>記録一覧</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.extractionCard}
+                className="mt-4 "
+                onPress={() => router.push('/extraction')}>
+                <Image
+                  source={require('../../assets/images/extraction.png')}
+                  style={[styles.buttonEmoji, { width: 38, height: 38 }]}
+                  resizeMode="contain"
                 />
-              ))}
+                <Text style={styles.extractionCardTitle}>抽出する</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        )}
-
-        {/* 下部スペーサー（ボタン用の余白） */}
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-
-      {/* 固定ボタンセクション（画面下部） */}
-      <View style={styles.fixedButtons}>
-        {/* メインボタンセクション */}
-        <View style={styles.mainCardsRow}>
-          <View className="flex-row justify-center">
-            <TouchableOpacity
-              style={styles.extractionCard}
-              className="flex-1"
-              onPress={() => router.push('/newEntry')}>
-              <Text style={styles.buttonEmoji}>{CoffeeIcons.extraction}</Text>
-              <Text style={styles.extractionCardTitle}>新規記録</Text>
-              <Text style={styles.extractionCardSubtitle}>抽出の日記をつける</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className="flex-1"
-              style={styles.entryListCard}
-              onPress={() => router.push('/entryList')}>
-              <Text style={styles.buttonEmoji}>{CoffeeIcons.entryList}</Text>
-              <Text style={styles.entryListCardTitle}>記録一覧</Text>
-              <Text style={styles.entryListCardSubtitle}>過去の記録を見る</Text>
-              <Text style={styles.entryListCardSubtitle}>（{entries.length}件）</Text>
-            </TouchableOpacity>
-          </View>
-          {/* <TouchableOpacity
-            style={styles.extractionCard}
-            onPress={() => router.push('/extraction')}>
-            <Text style={styles.buttonEmoji}>{CoffeeIcons.extraction}</Text>
-            <Text style={styles.extractionCardTitle}>抽出機能</Text>
-            <Text style={styles.extractionCardSubtitle}>タイマーで計測する</Text>
-          </TouchableOpacity> */}
         </View>
       </View>
     </View>
@@ -228,23 +189,13 @@ const styles = StyleSheet.create({
     height: 50,
   },
   fixedButtons: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingTop: 10,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    backgroundColor: CoffeeColors.background,
-    borderTopColor: 'rgba(139, 69, 19, 0.1)',
     zIndex: 3,
   },
   mainCardsRow: {},
   entryListCard: {
     ...CoffeeStyles.card,
     paddingVertical: 20,
-    paddingHorizontal: 16,
+
     alignItems: 'center',
     backgroundColor: CoffeeColors.accentLight,
   },
