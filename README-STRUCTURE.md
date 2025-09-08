@@ -79,7 +79,6 @@ app/
 ├── newEntry.tsx           # 新規記録画面
 ├── extraction.tsx         # 抽出タイマー画面
 ├── (tabs)/                # タブナビゲーション
-├── entryDetail/           # 記録詳細画面
 └── editEntry/             # 記録編集画面
 ```
 
