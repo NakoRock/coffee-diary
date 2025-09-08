@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Searchbar, Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useEntries } from '../hooks/useEntries';
@@ -8,7 +8,7 @@ import { CoffeeColors, CoffeeTypography } from '../../constants/CoffeeTheme';
 
 export const EntryListScreen: React.FC = () => {
   const router = useRouter();
-  const { entries } = useEntries();
+  const { entries, deleteEntry } = useEntries();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredEntries = useMemo(() => {
@@ -16,6 +16,26 @@ export const EntryListScreen: React.FC = () => {
     const query = searchQuery.toLowerCase();
     return entries.filter((entry) => entry.beanType.toLowerCase().includes(query));
   }, [entries, searchQuery]);
+
+  const handleEdit = (entryId: string) => {
+    router.push(`/editEntry/${entryId}`);
+  };
+
+  const handleDelete = (entryId: string) => {
+    Alert.alert('記録を削除', 'この記録を削除しますか？この操作は元に戻せません。', [
+      {
+        text: 'キャンセル',
+        style: 'cancel',
+      },
+      {
+        text: '削除',
+        style: 'destructive',
+        onPress: () => {
+          deleteEntry(entryId);
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
@@ -35,7 +55,9 @@ export const EntryListScreen: React.FC = () => {
             <EntryCard
               key={entry.id}
               entry={entry}
-              onPress={() => router.push(`/entryDetail/${entry.id}`)}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              expandable={true}
             />
           ))}
         </ScrollView>
@@ -68,4 +90,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

@@ -28,7 +28,7 @@ export const EditEntryScreen: React.FC = () => {
         ...updatedEntry,
         id: entry.id,
       });
-      router.push(`/entryDetail/${entry.id}`);
+      router.push(`/entryList`);
     }
   };
 

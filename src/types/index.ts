@@ -20,7 +20,6 @@ export interface CoffeeEntry {
 export type RootStackParamList = {
   Home: undefined;
   EntryList: undefined;
-  EntryDetail: { entryId: string };
   NewEntry: undefined;
   EditEntry: { entryId: string };
 };

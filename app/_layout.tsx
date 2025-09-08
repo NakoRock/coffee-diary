@@ -28,12 +28,6 @@ export default function Layout() {
           }}
         />
         <Stack.Screen
-          name="entryDetail/[id]"
-          options={{
-            title: '記録詳細',
-          }}
-        />
-        <Stack.Screen
           name="editEntry/[id]"
           options={{
             title: '記録編集',
