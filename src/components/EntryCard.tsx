@@ -152,7 +152,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({
               <Text style={styles.tasteStars}>{renderTasteStars(entry.taste.bitterness)}</Text>
             </View>
           </View>
-        </View>{' '}
+        </View>
         {/* 展開コンテンツ */}
         {expandable && renderExpandedContent()}
       </TouchableOpacity>

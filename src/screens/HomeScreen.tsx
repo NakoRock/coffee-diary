@@ -52,7 +52,7 @@ export const HomeScreen: React.FC = () => {
               icon={CoffeeIcons.coffeeCup}
               color={CoffeeColors.accent}
             />
-          </View>{' '}
+          </View>
           {/* 固定ボタンセクション（画面下部） */}
           <View className="p-2" style={styles.fixedButtons}>
             {/* メインボタンセクション */}
