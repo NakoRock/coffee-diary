@@ -18,7 +18,7 @@ export const ExtractionScreen: React.FC = () => {
   const [showWaterInput, setShowWaterInput] = useState(false);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: number;
     if (isTimerRunning && startTime) {
       interval = setInterval(() => {
         setCurrentTime(Date.now() - startTime);
@@ -32,7 +32,7 @@ export const ExtractionScreen: React.FC = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     const remainingMilliseconds = Math.floor((milliseconds % 1000) / 100);
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}.${remainingMilliseconds}`;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   const startTimer = () => {
