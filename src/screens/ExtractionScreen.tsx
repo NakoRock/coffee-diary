@@ -133,13 +133,15 @@ export const ExtractionScreen: React.FC = () => {
         {/* ヘッダー部分 */}
 
         {/* 設定セクション */}
-        <View style={[styles.section, styles.marginBottom]}>
+        <View style={[styles.section]} className="mb-5">
           <Text style={styles.sectionTitle}>抽出設定</Text>
 
-          <View style={styles.settingsRow}>
-            <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>蒸らし時間</Text>
-              <View style={styles.inputContainer}>
+          <View className="flex-row justify-between">
+            <View className="flex-1 mx-2">
+              <Text style={styles.settingLabel} className="text-center mb-2">
+                蒸らし時間
+              </Text>
+              <View style={styles.inputContainer} className="flex-row items-center">
                 <TextInput
                   value={bloomTime}
                   onChangeText={setBloomTime}
@@ -150,9 +152,11 @@ export const ExtractionScreen: React.FC = () => {
                 <Text style={styles.unitText}>秒</Text>
               </View>
             </View>
-            <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>蒸らし湯量</Text>
-              <View style={styles.inputContainer}>
+            <View className="flex-1 mx-2">
+              <Text style={styles.settingLabel} className="text-center mb-2">
+                蒸らし湯量
+              </Text>
+              <View style={styles.inputContainer} className="flex-row items-center">
                 <TextInput
                   value={bloomWater}
                   onChangeText={setBloomWater}
@@ -167,8 +171,8 @@ export const ExtractionScreen: React.FC = () => {
         </View>
 
         {/* タイマーセクション */}
-        <View style={[styles.section, styles.timerSection, styles.marginBottom]}>
-          <View style={styles.timerContainer}>
+        <View style={[styles.section, styles.timerSection]} className="mb-5 items-center py-8">
+          <View className="items-center mb-6">
             <Text style={styles.timerText}>{formatTime(currentTime)}</Text>
             <Text style={styles.timerLabel}>経過時間</Text>
           </View>
@@ -178,12 +182,18 @@ export const ExtractionScreen: React.FC = () => {
               <Text style={styles.startButtonText}>🚀 抽出開始</Text>
             </TouchableOpacity>
           ) : (
-            <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.lapButton} onPress={recordLap}>
+            <View className="flex-row w-full justify-between">
+              <TouchableOpacity
+                style={styles.lapButton}
+                className="flex-1 mr-2 py-4 items-center"
+                onPress={recordLap}>
                 <Text style={styles.lapButtonText}>💧 次の注湯</Text>
                 <Text style={styles.lapCountText}>ラップ: {laps.length}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.finishButton} onPress={finishExtraction}>
+              <TouchableOpacity
+                style={styles.finishButton}
+                className="flex-1 ml-2 py-4 items-center"
+                onPress={finishExtraction}>
                 <Text style={styles.finishButtonText}>✨ フィニッシュ</Text>
               </TouchableOpacity>
             </View>
@@ -192,14 +202,21 @@ export const ExtractionScreen: React.FC = () => {
 
         {/* 注湯記録 */}
         {laps.length > 0 && (
-          <View style={[styles.section, styles.marginBottom]}>
+          <View style={[styles.section]} className="mb-5">
             <Text style={styles.sectionTitle}>注湯記録</Text>
             <View style={styles.divider} />
             {laps.map((lap, index) => (
-              <View key={index} style={styles.lapRecord}>
+              <View
+                key={index}
+                style={styles.lapRecord}
+                className="flex-row justify-between items-center rounded-lg py-3 px-4 my-1">
                 <Text style={styles.lapIndex}>#{index + 1}</Text>
-                <Text style={styles.lapTime}>{formatTime(lap.time)}</Text>
-                <Text style={styles.lapAmount}>{lap.waterAmount}g</Text>
+                <Text style={styles.lapTime} className="flex-1 text-center">
+                  {formatTime(lap.time)}
+                </Text>
+                <Text style={styles.lapAmount} className="text-right w-[60px]">
+                  {lap.waterAmount}g
+                </Text>
               </View>
             ))}
           </View>
@@ -207,12 +224,23 @@ export const ExtractionScreen: React.FC = () => {
 
         {/* 注湯量入力モーダル */}
         {showWaterInput && (
-          <View style={styles.modalOverlay}>
-            <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={cancelLap} />
-            <View style={styles.modal}>
-              <Text style={styles.modalTitle}>注湯量を設定</Text>
+          <View
+            style={styles.modalOverlay}
+            className="absolute top-0 left-0 right-0 bottom-0 justify-center items-center z-[1000]">
+            <TouchableOpacity
+              style={styles.modalBackdrop}
+              className="absolute top-0 left-0 right-0 bottom-0"
+              activeOpacity={1}
+              onPress={cancelLap}
+            />
+            <View style={styles.modal} className="w-11/12 max-w-[400px]">
+              <Text style={styles.modalTitle} className="text-center mb-5">
+                注湯量を設定
+              </Text>
 
-              <View style={styles.currentAmountContainer}>
+              <View
+                style={styles.currentAmountContainer}
+                className="items-center py-4 rounded-lg mb-5">
                 <Text style={styles.currentAmountLabel}>現在の設定</Text>
                 <Text style={styles.currentAmountText}>{currentWaterAmount}g</Text>
                 <TouchableOpacity style={styles.resetButton} onPress={resetWaterAmount}>
@@ -220,23 +248,28 @@ export const ExtractionScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.incrementButtons}>
+              <View className="flex-row flex-wrap justify-between mb-5">
                 {[100, 50, 10, 5, 1].map((amount) => (
                   <TouchableOpacity
                     key={amount}
                     style={[styles.incrementButton, getIncrementButtonStyle(amount)]}
+                    className="w-[48%] py-3 px-4 rounded-lg items-center mb-2"
                     onPress={() => addWaterAmount(amount)}>
                     <Text style={styles.incrementButtonText}>+{amount}g</Text>
                   </TouchableOpacity>
                 ))}
               </View>
 
-              <View style={styles.modalButtonRow}>
-                <TouchableOpacity style={styles.modalCancelButton} onPress={cancelLap}>
+              <View className="flex-row justify-between">
+                <TouchableOpacity
+                  style={styles.modalCancelButton}
+                  className="flex-1 mr-2 py-3 items-center"
+                  onPress={cancelLap}>
                   <Text style={styles.modalCancelButtonText}>キャンセル</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.modalConfirmButton, currentWaterAmount === 0 && { opacity: 0.5 }]}
+                  className="flex-1 ml-2 py-3 items-center"
                   onPress={confirmLap}
                   disabled={currentWaterAmount === 0}>
                   <Text style={styles.modalConfirmButtonText}>記録 ({currentWaterAmount}g)</Text>
@@ -251,50 +284,23 @@ export const ExtractionScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    backgroundColor: CoffeeColors.primary,
-    elevation: 4,
-  },
-  headerTitle: {
-    ...CoffeeTypography.headerMedium,
-    color: CoffeeColors.surface,
-  },
-  scrollView: {
-    flex: 1,
-    padding: 20,
-  },
+  // CoffeeStyles.sectionから継承する必要があるスタイル
   section: {
     ...CoffeeStyles.section,
   },
-  marginBottom: {
-    marginBottom: 20,
-  },
+
+  // カスタムカラーと複雑なスタイルのみ保持
   sectionTitle: {
     ...CoffeeTypography.caption,
     color: CoffeeColors.primary,
     marginBottom: 8,
   },
-  settingsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  settingItem: {
-    flex: 1,
-    marginHorizontal: 8,
-  },
   settingLabel: {
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.textSecondary,
-    textAlign: 'center',
     fontWeight: '600',
-    marginBottom: 8,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: CoffeeColors.surfaceVariant,
     borderColor: CoffeeColors.border,
     borderWidth: 1,
@@ -303,8 +309,6 @@ const styles = StyleSheet.create({
   },
   textInput: {
     ...CoffeeTypography.bodyLarge,
-    flex: 1,
-    textAlign: 'center',
     fontWeight: '600',
     height: 50,
     backgroundColor: 'transparent',
@@ -315,12 +319,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   timerSection: {
-    alignItems: 'center',
     paddingVertical: 32,
-  },
-  timerContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
   },
   timerText: {
     ...CoffeeTypography.timer,
@@ -339,20 +338,10 @@ const styles = StyleSheet.create({
   startButtonText: {
     ...CoffeeTypography.bodyLarge,
     color: CoffeeColors.primaryDark,
-    textAlign: 'center',
     fontWeight: 'bold',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
   },
   lapButton: {
     ...CoffeeStyles.outlinedButton,
-    flex: 1,
-    marginRight: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
   },
   lapButtonText: {
     ...CoffeeTypography.bodyMedium,
@@ -366,15 +355,10 @@ const styles = StyleSheet.create({
   },
   finishButton: {
     ...CoffeeStyles.primaryButton,
-    flex: 1,
-    marginLeft: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
   },
   finishButtonText: {
     ...CoffeeTypography.bodyLarge,
     color: CoffeeColors.surface,
-    textAlign: 'center',
     fontWeight: 'bold',
   },
   divider: {
@@ -384,14 +368,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   lapRecord: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     backgroundColor: CoffeeColors.overlayDark,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginVertical: 4,
   },
   lapIndex: {
     ...CoffeeTypography.bodyMedium,
@@ -401,8 +378,6 @@ const styles = StyleSheet.create({
   },
   lapTime: {
     ...CoffeeTypography.bodyMedium,
-    flex: 1,
-    textAlign: 'center',
     fontFamily: 'monospace',
     color: CoffeeColors.text,
   },
@@ -410,32 +385,16 @@ const styles = StyleSheet.create({
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.primary,
     fontWeight: '600',
-    textAlign: 'right',
-    width: 60,
   },
   modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
+    backgroundColor: 'transparent', // 透明度はclassNameで管理
   },
   modalBackdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modal: {
     ...CoffeeStyles.section,
     backgroundColor: CoffeeColors.surface,
-    width: '91.666667%',
-    maxWidth: 400,
     elevation: 8,
     shadowColor: CoffeeColors.shadow,
     shadowOffset: { width: 0, height: 4 },
@@ -444,15 +403,9 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...CoffeeTypography.headerMedium,
-    textAlign: 'center',
-    marginBottom: 20,
   },
   currentAmountContainer: {
-    alignItems: 'center',
     backgroundColor: CoffeeColors.overlayDark,
-    paddingVertical: 16,
-    borderRadius: 8,
-    marginBottom: 20,
   },
   currentAmountLabel: {
     ...CoffeeTypography.bodySmall,
@@ -474,19 +427,7 @@ const styles = StyleSheet.create({
     color: CoffeeColors.primary,
     fontWeight: '600',
   },
-  incrementButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
   incrementButton: {
-    width: '48%',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 8,
     elevation: 2,
   },
   incrementButtonText: {
@@ -494,16 +435,8 @@ const styles = StyleSheet.create({
     color: CoffeeColors.surface,
     fontWeight: '600',
   },
-  modalButtonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   modalCancelButton: {
     ...CoffeeStyles.outlinedButton,
-    flex: 1,
-    marginRight: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
   },
   modalCancelButtonText: {
     ...CoffeeTypography.bodyMedium,
@@ -512,10 +445,6 @@ const styles = StyleSheet.create({
   },
   modalConfirmButton: {
     ...CoffeeStyles.primaryButton,
-    flex: 1,
-    marginLeft: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
   },
   modalConfirmButtonText: {
     ...CoffeeTypography.bodyMedium,
