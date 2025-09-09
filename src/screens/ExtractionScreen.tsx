@@ -46,6 +46,13 @@ export const ExtractionScreen: React.FC = () => {
 
   const recordLap = () => {
     if (startTime && lastLapTime) {
+      // 直前のラップの注湯量を初期値として設定
+      if (laps.length > 0) {
+        const lastLapAmount = laps[laps.length - 1].waterAmount;
+        setCurrentWaterAmount(lastLapAmount);
+      } else {
+        setCurrentWaterAmount(0);
+      }
       setShowWaterInput(true);
     }
   };
@@ -55,7 +62,7 @@ export const ExtractionScreen: React.FC = () => {
   };
 
   const resetWaterAmount = () => {
-    setCurrentWaterAmount(0);
+    setCurrentWaterAmount(laps[laps.length - 1].waterAmount);
   };
 
   const confirmLap = () => {
