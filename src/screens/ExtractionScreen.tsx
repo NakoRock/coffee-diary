@@ -61,9 +61,9 @@ export const ExtractionScreen: React.FC = () => {
   const confirmLap = () => {
     if (startTime && lastLapTime && currentWaterAmount > 0) {
       const now = Date.now();
-      const lapTime = now - lastLapTime;
+      const cumulativeTime = now - startTime;
 
-      setLaps((prev) => [...prev, { time: lapTime, waterAmount: currentWaterAmount }]);
+      setLaps((prev) => [...prev, { time: cumulativeTime, waterAmount: currentWaterAmount }]);
       setLastLapTime(now);
       setCurrentWaterAmount(0);
       setShowWaterInput(false);

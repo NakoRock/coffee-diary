@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
-import { CoffeeIcons } from '../../constants/CoffeeIcons';
+import { CoffeeAssets, CoffeeAssetKey } from '../../constants/CoffeeIcons';
 
 interface DashboardWidgetProps {
   title: string;
   value: string | number;
-  icon: string;
+  icon: CoffeeAssetKey;
   subtitle?: string;
   color?: string;
 }
@@ -22,7 +22,11 @@ export const DashboardWidget: React.FC<DashboardWidgetProps> = ({
   return (
     <View style={[styles.widget, { borderLeftColor: color }]}>
       <View style={styles.header}>
-        <Text style={styles.icon}>{icon}</Text>
+        <Image
+          source={CoffeeAssets[icon]}
+          style={[styles.iconImage, { width: 20, height: 20 }]}
+          resizeMode="contain"
+        />
         <Text style={styles.title}>{title}</Text>
       </View>
       <Text style={styles.value}>{value}</Text>
@@ -48,6 +52,10 @@ const styles = StyleSheet.create({
   icon: {
     fontSize: 20,
     marginRight: 8,
+  },
+  iconImage: {
+    fontSize: 24,
+    marginBottom: 4,
   },
   title: {
     ...CoffeeTypography.bodyMedium,

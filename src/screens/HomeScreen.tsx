@@ -16,7 +16,7 @@ import { useStats } from '../hooks/useStats';
 import { EntryCard } from '../components/EntryCard';
 import { DashboardWidget } from '../components/DashboardWidget';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
-import { CoffeeIcons } from '../../constants/CoffeeIcons';
+import { CoffeeAssets } from '../../constants/CoffeeIcons';
 
 const { height } = Dimensions.get('window');
 
@@ -48,7 +48,7 @@ export const HomeScreen: React.FC = () => {
             <DashboardWidget
               title="今週の杯数"
               value={`${stats.weeklyCount}杯`}
-              icon={CoffeeIcons.coffeeCup}
+              icon="coffee"
               color={CoffeeColors.accent}
             />
           </View>
@@ -61,7 +61,11 @@ export const HomeScreen: React.FC = () => {
                   style={styles.extractionCard}
                   className="flex-1 mr-2"
                   onPress={() => router.push('/newEntry')}>
-                  <Text style={styles.buttonEmoji}>{CoffeeIcons.newEntry}</Text>
+                  <Image
+                    source={CoffeeAssets.pen}
+                    style={[styles.buttonEmoji, { width: 50, height: 50 }]}
+                    resizeMode="contain"
+                  />
                   <Text style={styles.extractionCardTitle}>新規記録</Text>
                 </TouchableOpacity>
 
@@ -69,7 +73,11 @@ export const HomeScreen: React.FC = () => {
                   className="flex-1"
                   style={styles.entryListCard}
                   onPress={() => router.push('/entryList')}>
-                  <Text style={styles.buttonEmoji}>{CoffeeIcons.entryList}</Text>
+                  <Image
+                    source={CoffeeAssets.note}
+                    style={[styles.buttonEmoji, { width: 50, height: 50 }]}
+                    resizeMode="contain"
+                  />
                   <Text style={styles.entryListCardTitle}>記録一覧</Text>
                 </TouchableOpacity>
               </View>
@@ -78,7 +86,7 @@ export const HomeScreen: React.FC = () => {
                 className="mt-4 "
                 onPress={() => router.push('/extraction')}>
                 <Image
-                  source={require('../../assets/images/extraction.png')}
+                  source={CoffeeAssets.extraction}
                   style={[styles.buttonEmoji, { width: 38, height: 38 }]}
                   resizeMode="contain"
                 />
