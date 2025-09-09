@@ -87,7 +87,7 @@ export const HomeScreen: React.FC = () => {
                 onPress={() => router.push('/extraction')}>
                 <Image
                   source={CoffeeAssets.extraction}
-                  style={[styles.buttonEmoji, { width: 38, height: 38 }]}
+                  style={[styles.buttonEmoji, { width: 65, height: 65 }]}
                   resizeMode="contain"
                 />
                 <Text style={styles.extractionCardTitle}>抽出する</Text>
