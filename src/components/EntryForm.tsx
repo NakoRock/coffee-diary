@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { TextInput, Button, Text, IconButton } from 'react-native-paper';
+import React, { useState, useRef } from 'react';
+import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { TextInput, Button, Text, IconButton, Chip } from 'react-native-paper';
 import { CoffeeEntry } from '../types';
 import { CoffeeColors, CoffeeTypography } from '../../constants/CoffeeTheme';
 
@@ -25,6 +25,8 @@ export const EntryForm: React.FC<EntryFormProps> = ({
   const [sweetness, setSweetness] = useState(initialValues?.taste.sweetness?.toString() || '3');
   const [bitterness, setBitterness] = useState(initialValues?.taste.bitterness?.toString() || '3');
   const [notes, setNotes] = useState(initialValues?.notes || '');
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const calculateWaterAmount = () => {
     if (extractionSteps.length === 0) return 0;
@@ -84,109 +86,145 @@ export const EntryForm: React.FC<EntryFormProps> = ({
     }
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      <TextInput
-        label="豆の種類"
-        value={beanType}
-        onChangeText={setBeanType}
-        style={styles.input}
-      />
+  const scrollToInput = (yPosition: number) => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({
+        y: Math.max(0, yPosition - 100),
+        animated: true,
+      });
+    }, 200);
+  };
 
-      <Text style={styles.sectionTitle}>抽出ステップ</Text>
-      {extractionSteps.map((step, index) => (
-        <View key={index} style={styles.stepRow}>
-          <TextInput
-            label="時間 (秒)"
-            value={step.time.toString()}
-            onChangeText={(value) => handleUpdateStep(index, 'time', value)}
-            keyboardType="numeric"
-            style={styles.stepInput}
-          />
-          <TextInput
-            label="グラム"
-            value={step.grams.toString()}
-            onChangeText={(value) => handleUpdateStep(index, 'grams', value)}
-            keyboardType="numeric"
-            style={styles.stepInput}
-          />
-          {extractionSteps.length > 1 && (
-            <IconButton
-              icon="delete"
-              mode="outlined"
-              onPress={() => handleRemoveStep(index)}
-              style={styles.deleteButton}
-            />
-          )}
+  const renderRatingChips = (label: string, value: string, setValue: (value: string) => void) => {
+    return (
+      <View className="mb-2">
+        <Text style={styles.ratingLabel}>{label}</Text>
+        <View className="flex flex-row justify-between">
+          {[1, 2, 3, 4, 5].map((rating) => (
+            <Chip
+              key={rating}
+              className="mx-1"
+              selected={parseInt(value) === rating}
+              onPress={() => setValue(rating.toString())}
+              showSelectedCheck={false}
+              style={[styles.ratingChip, parseInt(value) === rating && styles.selectedChip]}
+              textStyle={[styles.chipText, parseInt(value) === rating && styles.selectedChipText]}>
+              {rating}
+            </Chip>
+          ))}
         </View>
-      ))}
-      <Button mode="outlined" onPress={handleAddStep} style={styles.addButton}>
-        ステップを追加
-      </Button>
-
-      <TextInput
-        label="温度 (℃)"
-        value={temperature}
-        onChangeText={setTemperature}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-
-      <TextInput
-        label="豆の量 (g)"
-        value={beanAmount}
-        onChangeText={setBeanAmount}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-
-      <Text style={styles.sectionTitle}>味の評価 (1-5)</Text>
-      <View style={styles.tasteRow}>
-        <TextInput
-          label="酸味"
-          value={acidity}
-          onChangeText={setAcidity}
-          keyboardType="numeric"
-          style={styles.tasteInput}
-        />
-        <TextInput
-          label="甘み"
-          value={sweetness}
-          onChangeText={setSweetness}
-          keyboardType="numeric"
-          style={styles.tasteInput}
-        />
-        <TextInput
-          label="苦味"
-          value={bitterness}
-          onChangeText={setBitterness}
-          keyboardType="numeric"
-          style={styles.tasteInput}
-        />
       </View>
+    );
+  };
 
-      <TextInput
-        label="メモ"
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-        numberOfLines={4}
-        style={styles.input}
-      />
+  return (
+    <KeyboardAvoidingView
+      style={styles.keyboardAvoidingView}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      enabled={true}>
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <TextInput
+          label="豆の種類"
+          value={beanType}
+          onChangeText={setBeanType}
+          onFocus={() => scrollToInput(50)}
+          style={styles.input}
+        />
 
-      <Button
-        mode="contained"
-        onPress={handleSubmit}
-        disabled={!isValidForm()}
-        style={styles.submitButton}>
-        {submitLabel}
-      </Button>
-    </ScrollView>
+        <Text style={styles.sectionTitle}>抽出ステップ</Text>
+        {extractionSteps.map((step, index) => (
+          <View key={index} style={styles.stepRow}>
+            <TextInput
+              label="時間 (秒)"
+              value={step.time.toString()}
+              onChangeText={(value) => handleUpdateStep(index, 'time', value)}
+              keyboardType="numeric"
+              style={styles.stepInput}
+            />
+            <TextInput
+              label="グラム"
+              value={step.grams.toString()}
+              onChangeText={(value) => handleUpdateStep(index, 'grams', value)}
+              keyboardType="numeric"
+              style={styles.stepInput}
+            />
+            {extractionSteps.length > 1 && (
+              <IconButton
+                icon="delete"
+                mode="outlined"
+                onPress={() => handleRemoveStep(index)}
+                style={styles.deleteButton}
+              />
+            )}
+          </View>
+        ))}
+        <Button mode="outlined" className="mb-5" onPress={handleAddStep}>
+          ステップを追加
+        </Button>
+
+        <TextInput
+          label="温度 (℃)"
+          value={temperature}
+          onChangeText={setTemperature}
+          keyboardType="numeric"
+          onFocus={() => scrollToInput(200)}
+          style={styles.input}
+        />
+
+        <TextInput
+          label="豆の量 (g)"
+          value={beanAmount}
+          onChangeText={setBeanAmount}
+          keyboardType="numeric"
+          onFocus={() => scrollToInput(200)}
+          style={styles.input}
+        />
+
+        <Text style={styles.sectionTitle}>味の評価 (1-5)</Text>
+        <View className="mb-5">
+          {renderRatingChips('酸味', acidity, setAcidity)}
+          {renderRatingChips('甘み', sweetness, setSweetness)}
+          {renderRatingChips('苦味', bitterness, setBitterness)}
+        </View>
+
+        <TextInput
+          label="メモ"
+          value={notes}
+          onChangeText={setNotes}
+          multiline
+          numberOfLines={4}
+          onFocus={() => scrollToInput(550)}
+          style={styles.input}
+        />
+
+        <Button
+          mode="contained"
+          onPress={handleSubmit}
+          disabled={!isValidForm()}
+          style={styles.submitButton}>
+          {submitLabel}
+        </Button>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
   container: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     padding: 16,
   },
   input: {
@@ -210,17 +248,30 @@ const styles = StyleSheet.create({
   deleteButton: {
     margin: 0,
   },
-  addButton: {
-    marginBottom: 16,
+  ratingLabel: {
+    ...CoffeeTypography.bodyMedium,
+    color: CoffeeColors.text,
+    marginBottom: 8,
+    fontWeight: '500',
   },
-  tasteRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  tasteInput: {
+  ratingChip: {
     flex: 1,
-    marginHorizontal: 4,
+    backgroundColor: 'transparent',
+    borderColor: '#333',
+    borderWidth: 1,
+  },
+  selectedChip: {
+    backgroundColor: CoffeeColors.primary,
+  },
+  chipText: {
+    color: CoffeeColors.text,
+    fontSize: 14,
+    marginRight: 'auto',
+    marginLeft: 'auto',
+  },
+  selectedChipText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   submitButton: {
     marginTop: 16,

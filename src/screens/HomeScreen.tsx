@@ -30,12 +30,11 @@ export const HomeScreen: React.FC = () => {
   return (
     <View className="flex-1" style={styles.container}>
       {/* 背景画像セクション（タイトル上部のみ） */}
-      <View style={[styles.backgroundSection, { height: height * 0.5 }]}>
+      <View style={[styles.backgroundSection, { height: height }]}>
         <ImageBackground
           source={require('../../assets/images/main.jpg')}
           className="flex-1"
-          style={styles.backgroundImage}
-          resizeMode="cover"></ImageBackground>
+          style={styles.backgroundImage}></ImageBackground>
       </View>
 
       {/* 固定ヘッダーセクション */}
@@ -106,6 +105,7 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     width: '100%',
+    height: '100%',
   },
   gradient: {
     position: 'relative',
