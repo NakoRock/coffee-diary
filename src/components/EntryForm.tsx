@@ -145,6 +145,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
               value={step.time.toString()}
               onChangeText={(value) => handleUpdateStep(index, 'time', value)}
               keyboardType="numeric"
+              onFocus={() => scrollToInput(90 + index * 45)}
               style={styles.stepInput}
             />
             <TextInput
@@ -152,16 +153,17 @@ export const EntryForm: React.FC<EntryFormProps> = ({
               value={step.grams.toString()}
               onChangeText={(value) => handleUpdateStep(index, 'grams', value)}
               keyboardType="numeric"
+              onFocus={() => scrollToInput(90 + index * 45)}
               style={styles.stepInput}
             />
-            {extractionSteps.length > 1 && (
-              <IconButton
-                icon="delete"
-                mode="outlined"
-                onPress={() => handleRemoveStep(index)}
-                style={styles.deleteButton}
-              />
-            )}
+
+            <IconButton
+              icon="delete"
+              mode="outlined"
+              onPress={() => handleRemoveStep(index)}
+              style={styles.deleteButton}
+              disabled={extractionSteps.length === 1}
+            />
           </View>
         ))}
         <Button mode="outlined" className="mb-5" onPress={handleAddStep}>
@@ -173,7 +175,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
           value={temperature}
           onChangeText={setTemperature}
           keyboardType="numeric"
-          onFocus={() => scrollToInput(200)}
+          onFocus={() => scrollToInput(200 + extractionSteps.length * 45)}
           style={styles.input}
         />
 
@@ -182,7 +184,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
           value={beanAmount}
           onChangeText={setBeanAmount}
           keyboardType="numeric"
-          onFocus={() => scrollToInput(200)}
+          onFocus={() => scrollToInput(200 + extractionSteps.length * 45)}
           style={styles.input}
         />
 
@@ -199,7 +201,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
           onChangeText={setNotes}
           multiline
           numberOfLines={4}
-          onFocus={() => scrollToInput(550)}
+          onFocus={() => scrollToInput(550 + extractionSteps.length * 45)}
           style={styles.input}
         />
 
