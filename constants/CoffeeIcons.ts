@@ -1,36 +1,6 @@
 // コーヒーテーマのアイコンセット（統一感のあるデザイン）
 export const CoffeeIcons = {
-  // メイン機能アイコン
-  newEntry: '✏️', // 新規記録
-  entryList: '📋', // 記録一覧
-  extraction: '⏰', // 抽出機能
-
-  // コーヒー関連アイコン
-  coffeeCup: '☕', // コーヒーカップ
   coffeeBean: '🫘', // コーヒー豆
-  coffeeBag: '🌰', // 豆袋
-  thermometer: '🌡️', // 温度計
-  timer: '⏱️', // タイマー
-  scale: '⚖️', // スケール
-
-  // 味覚評価アイコン
-  taste: '👅', // 味覚
-  acidity: '🍋', // 酸味
-  sweetness: '🍯', // 甘み
-  bitterness: '🍫', // 苦味
-
-  // UI操作アイコン
-  add: '➕', // 追加
-  delete: '🗑️', // 削除
-  edit: '✏️', // 編集
-  save: '💾', // 保存
-  back: '⬅️', // 戻る
-
-  // その他
-  stats: '📊', // 統計
-  favorite: '⭐', // お気に入り
-  note: '📝', // メモ
-  calendar: '📅', // 日付
 };
 
 // アセット画像マップ

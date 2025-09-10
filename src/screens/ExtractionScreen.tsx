@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Button, Text, Card, TextInput, Divider, Appbar } from 'react-native-paper';
+import { View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { Text, TextInput, Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
 

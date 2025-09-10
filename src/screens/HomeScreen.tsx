@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   ImageBackground,
-  Dimensions,
   StyleSheet,
   Image,
   ScrollView,
@@ -18,8 +17,6 @@ import { EntryCard } from '../components/EntryCard';
 import { DashboardWidget } from '../components/DashboardWidget';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
 import { CoffeeAssets } from '../../constants/CoffeeIcons';
-
-const { height } = Dimensions.get('window');
 
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
