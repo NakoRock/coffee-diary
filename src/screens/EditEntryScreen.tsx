@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Appbar, Button } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CoffeeEntry } from '../types';
 import { useEntries } from '../hooks/useEntries';
@@ -10,8 +10,10 @@ import { CoffeeColors, CoffeeTypography } from '../../constants/CoffeeTheme';
 export const EditEntryScreen: React.FC = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { getEntry, updateEntry } = useEntries();
+  const { getEntry, updateEntry, deleteEntry } = useEntries();
   const [entry, setEntry] = useState<CoffeeEntry | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
     loadEntry();
@@ -22,14 +24,46 @@ export const EditEntryScreen: React.FC = () => {
     setEntry(loadedEntry);
   };
 
-  const handleSubmit = async (updatedEntry: Omit<CoffeeEntry, 'id'>) => {
+  const [currentFormData, setCurrentFormData] = useState<Omit<CoffeeEntry, 'id'> | null>(null);
+
+  const handleFormSubmit = async (updatedEntry: Omit<CoffeeEntry, 'id'>) => {
     if (entry) {
       await updateEntry({
         ...updatedEntry,
         id: entry.id,
       });
-      router.push(`/entryList`);
+      setIsEditing(false);
+      await loadEntry();
     }
+  };
+
+  const handleSave = async () => {
+    if (currentFormData) {
+      await handleFormSubmit(currentFormData);
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleDelete = () => {
+    Alert.alert('削除の確認', 'この記録を削除しますか？この操作は取り消せません。', [
+      {
+        text: 'キャンセル',
+        style: 'cancel',
+      },
+      {
+        text: '削除',
+        style: 'destructive',
+        onPress: async () => {
+          if (entry) {
+            await deleteEntry(entry.id);
+            router.push('/entryList');
+          }
+        },
+      },
+    ]);
   };
 
   if (!entry) {
@@ -51,10 +85,45 @@ export const EditEntryScreen: React.FC = () => {
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
         <Appbar.BackAction onPress={() => router.back()} color={CoffeeColors.surface} />
-        <Appbar.Content title="記録編集" titleStyle={styles.headerTitle} />
+        <Appbar.Content
+          title={isEditing ? '記録編集' : '記録確認'}
+          titleStyle={styles.headerTitle}
+        />
       </Appbar.Header>
       <View style={styles.content}>
-        <EntryForm initialValues={initialValues} onSubmit={handleSubmit} submitLabel="更新" />
+        <EntryForm
+          initialValues={initialValues}
+          onSubmit={handleFormSubmit}
+          submitLabel="保存"
+          readonly={!isEditing}
+          hideSubmitButton={isEditing}
+          onValidityChange={setIsFormValid}
+          onFormDataChange={setCurrentFormData}
+        />
+        {!isEditing ? (
+          <View style={styles.buttonContainer}>
+            <Button mode="contained" onPress={handleEdit} style={styles.editButton}>
+              編集
+            </Button>
+          </View>
+        ) : (
+          <View style={styles.buttonContainer}>
+            <Button
+              mode="contained"
+              onPress={handleSave}
+              disabled={!isFormValid}
+              style={styles.saveButton}>
+              保存
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={handleDelete}
+              style={styles.deleteButton}
+              textColor={CoffeeColors.error}>
+              削除
+            </Button>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -75,5 +144,18 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  buttonContainer: {
+    padding: 16,
+    paddingTop: 4,
+  },
+  editButton: {
+    marginBottom: 8,
+  },
+  saveButton: {
+    marginBottom: 8,
+  },
+  deleteButton: {
+    borderColor: CoffeeColors.error,
   },
 });

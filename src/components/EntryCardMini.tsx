@@ -48,6 +48,14 @@ export const EntryCardMini: React.FC<EntryCardProps> = ({ entry, onPress }) => {
               <Text style={styles.tasteLabel}>苦味</Text>
               <Text style={styles.tasteStars}>{renderTasteStars(entry.taste.bitterness)}</Text>
             </View>
+            <View style={styles.tasteItem}>
+              <Text style={styles.tasteLabel}>香り</Text>
+              <Text style={styles.tasteStars}>{renderTasteStars(entry.taste.aroma || 3)}</Text>
+            </View>
+            <View style={styles.tasteItem}>
+              <Text style={styles.tasteLabel}>美味しさ</Text>
+              <Text style={styles.tasteStars}>{renderTasteStars(entry.taste.overall || 3)}</Text>
+            </View>
           </View>
         </View>
       </TouchableOpacity>

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Animated, Alert } from 'react-native';
-import { Card, Title, Paragraph, Text, IconButton } from 'react-native-paper';
+import React from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 import { CoffeeEntry } from '../types';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
 import { CoffeeIcons } from '../../constants/CoffeeIcons';
+import { Svg, Polygon, Text as SvgText } from 'react-native-svg';
 
 interface EntryCardProps {
   entry: CoffeeEntry;
@@ -13,90 +14,109 @@ interface EntryCardProps {
   expandable?: boolean;
 }
 
-export const EntryCard: React.FC<EntryCardProps> = ({
-  entry,
-  onPress,
-  onEdit,
-  onDelete,
-  expandable = true,
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [animation] = useState(new Animated.Value(0));
+export const EntryCard: React.FC<EntryCardProps> = ({ entry, onEdit }) => {
+  const renderTastePentagon = () => {
+    const { acidity, sweetness, bitterness, aroma, overall } = entry.taste;
+    const center = { x: 50, y: 65 };
+    const radius = 45;
+    const maxValue = 5;
 
-  const formatExtractionSteps = (steps: CoffeeEntry['extractionSteps']) => {
-    if (!steps || steps.length === 0) return 'データなし';
-    return steps.map((step) => `${step.time}秒: ${step.grams}g`).join(' → ');
-  };
+    // 五角形の頂点を計算（上から時計回り）
+    const getPoint = (index: number, value: number) => {
+      const angle = (index * 2 * Math.PI) / 5 - Math.PI / 2; // 上から開始
+      const normalizedValue = (value / maxValue) * radius;
+      return {
+        x: center.x + Math.cos(angle) * normalizedValue,
+        y: center.y + Math.sin(angle) * normalizedValue,
+      };
+    };
 
-  const renderTasteStars = (rating: number) => {
-    return '●'.repeat(rating) + '○'.repeat(5 - rating);
-  };
+    // ラベル用の外側の点を計算
+    const getLabelPoint = (index: number) => {
+      const angle = (index * 2 * Math.PI) / 5 - Math.PI / 2;
+      const labelRadius = radius + 8;
+      return {
+        x: center.x + Math.cos(angle) * labelRadius,
+        y: center.y + Math.sin(angle) * labelRadius,
+      };
+    };
 
-  const toggleExpansion = () => {
-    if (!expandable) return;
+    // 各味覚の値に基づいて点を計算
+    const points = [
+      getPoint(0, overall || 3), // 美味しさ（上）
+      getPoint(1, sweetness), // 甘み（右上）
+      getPoint(2, bitterness), // 苦味（右下）
+      getPoint(3, acidity), // 酸味（左下）
+      getPoint(4, aroma), // 香り（左上）
+    ];
 
-    const toValue = isExpanded ? 0 : 1;
-    setIsExpanded(!isExpanded);
+    // ラベルの位置
+    const labelPoints = [
+      getLabelPoint(0), // 美味しさ
+      getLabelPoint(1), // 甘み
+      getLabelPoint(2), // 苦味
+      getLabelPoint(3), // 酸味
+      getLabelPoint(4), // 香り
+    ];
 
-    Animated.timing(animation, {
-      toValue,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  };
+    const labels = ['美味', '甘', '苦', '酸', '香'];
 
-  const handleEdit = () => {
-    if (onEdit) {
-      onEdit(entry.id);
-    }
-  };
-
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(entry.id);
-    }
-  };
-
-  const renderExpandedContent = () => {
-    const animatedHeight = animation.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 100],
-    });
-
-    const opacity = animation.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [0, 0.5, 1],
-    });
+    const pointsString = points.map((p) => `${p.x},${p.y}`).join(' ');
 
     return (
-      <Animated.View style={[styles.expandedContent, { height: animatedHeight }]}>
-        <Animated.View style={[styles.expandedInner, { opacity }]}>
-          {/* メモセクション */}
-          <View style={styles.noteSection}>
-            <Text style={styles.sectionLabel}>メモ</Text>
-            <View style={styles.divider} />
-            <Text style={styles.noteText}>{entry.notes || '記録なし'}</Text>
-          </View>
+      <Svg width="120" height="120" viewBox="0 0 100 120">
+        {/* レベルごとのメモリ線（1-5） */}
+        {[1, 2, 3, 4, 5].map((level) => {
+          const levelPoints = [
+            getPoint(0, level),
+            getPoint(1, level),
+            getPoint(2, level),
+            getPoint(3, level),
+            getPoint(4, level),
+          ];
+          const levelPointsString = levelPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
-          {/* アクションボタン */}
-          <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.actionButton} onPress={handleEdit}>
-              <Text style={styles.actionIcon}>✏️</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={handleDelete}>
-              <Text style={styles.actionIcon}>🗑️</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      </Animated.View>
+          return (
+            <Polygon
+              key={level}
+              points={levelPointsString}
+              fill="none"
+              stroke={level === 5 ? CoffeeColors.accentLight : CoffeeColors.textLight}
+              strokeWidth={level === 5 ? '1.7' : '0.8'}
+              strokeDasharray={level === 5 ? '3,2' : 'none'}
+              opacity={level === 5 ? 1 : 0.3}
+            />
+          );
+        })}
+        {/* 実際の味覚データ */}
+        <Polygon
+          points={pointsString}
+          fill={CoffeeColors.accent}
+          fillOpacity="0.55"
+          stroke={CoffeeColors.accent}
+          strokeWidth="1.5"
+        />
+        {/* ラベル */}
+        {labelPoints.map((point, index) => (
+          <SvgText
+            key={index}
+            x={point.x}
+            y={point.y}
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize="9"
+            fill={CoffeeColors.textSecondary}
+            fontWeight="500">
+            {labels[index]}
+          </SvgText>
+        ))}
+      </Svg>
     );
   };
 
   const handleCardPress = () => {
-    if (expandable) {
-      toggleExpansion();
-    } else if (onPress) {
-      onPress();
+    if (onEdit) {
+      onEdit(entry.id);
     }
   };
 
@@ -112,49 +132,8 @@ export const EntryCard: React.FC<EntryCardProps> = ({
             <Text style={styles.beanType}>{entry.beanType}</Text>
             <Text style={styles.dateText}>{new Date(entry.date).toLocaleDateString('ja-JP')}</Text>
           </View>
-          <Text style={styles.brewIcon}>{CoffeeIcons.coffeeCup}</Text>
+          {renderTastePentagon()}
         </View>
-        {/* 抽出情報 */}
-        <View style={styles.extractionInfo}>
-          <Text style={styles.sectionLabel}>抽出データ</Text>
-          <View style={styles.divider} />
-          <Text style={styles.extractionSteps}>{formatExtractionSteps(entry.extractionSteps)}</Text>
-          <View style={styles.parameterRow}>
-            <View style={styles.parameter}>
-              <Text style={styles.parameterLabel}>温度</Text>
-              <Text style={styles.parameterValue}>{entry.temperature}℃</Text>
-            </View>
-            <View style={styles.parameter}>
-              <Text style={styles.parameterLabel}>豆の量</Text>
-              <Text style={styles.parameterValue}>{entry.beanAmount}g</Text>
-            </View>
-            <View style={styles.parameter}>
-              <Text style={styles.parameterLabel}>湯量</Text>
-              <Text style={styles.parameterValue}>{entry.waterAmount}g</Text>
-            </View>
-          </View>
-        </View>
-        {/* 味覚情報 */}
-        <View style={styles.tasteSection}>
-          <Text style={styles.sectionLabel}>味覚プロフィール</Text>
-          <View style={styles.divider} />
-          <View style={styles.tasteGrid}>
-            <View style={styles.tasteItem}>
-              <Text style={styles.tasteLabel}>酸味</Text>
-              <Text style={styles.tasteStars}>{renderTasteStars(entry.taste.acidity)}</Text>
-            </View>
-            <View style={styles.tasteItem}>
-              <Text style={styles.tasteLabel}>甘み</Text>
-              <Text style={styles.tasteStars}>{renderTasteStars(entry.taste.sweetness)}</Text>
-            </View>
-            <View style={styles.tasteItem}>
-              <Text style={styles.tasteLabel}>苦味</Text>
-              <Text style={styles.tasteStars}>{renderTasteStars(entry.taste.bitterness)}</Text>
-            </View>
-          </View>
-        </View>
-        {/* 展開コンテンツ */}
-        {expandable && renderExpandedContent()}
       </TouchableOpacity>
     </View>
   );
@@ -172,64 +151,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 
-  // 展開コンテンツ
-  expandedContent: {
-    backgroundColor: CoffeeColors.surface,
-    marginHorizontal: 4,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    borderTopWidth: 1,
-    borderTopColor: CoffeeColors.border,
-    overflow: 'hidden',
-  },
-  expandedInner: {
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-
-  // メモセクション
-  noteSection: {
-    flex: 1,
-    marginRight: 16,
-  },
-  noteText: {
-    ...CoffeeTypography.bodyMedium,
-    color: CoffeeColors.textSecondary,
-    fontStyle: 'italic',
-  },
-
-  // アクションボタン
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: CoffeeColors.accentLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: CoffeeColors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  actionIcon: {
-    fontSize: 18,
-  },
-
   // ヘッダー部分
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: CoffeeColors.border,
+    paddingBottom: 2,
   },
   beanIconContainer: {
     width: 40,
@@ -257,70 +183,5 @@ const styles = StyleSheet.create({
   brewIcon: {
     fontSize: 24,
     color: CoffeeColors.accent,
-  },
-
-  // 抽出情報
-  extractionInfo: {
-    marginBottom: 16,
-  },
-  sectionLabel: {
-    ...CoffeeTypography.caption,
-    marginBottom: 8,
-    color: CoffeeColors.primary,
-  },
-  divider: {
-    width: 30,
-    height: 1,
-    backgroundColor: CoffeeColors.accent,
-    marginBottom: 12,
-  },
-  extractionSteps: {
-    ...CoffeeTypography.bodyMedium,
-    fontFamily: 'monospace',
-    backgroundColor: CoffeeColors.overlayDark,
-    padding: 8,
-    borderRadius: 6,
-    marginBottom: 12,
-  },
-  parameterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  parameter: {
-    alignItems: 'center',
-  },
-  parameterLabel: {
-    ...CoffeeTypography.bodySmall,
-    color: CoffeeColors.textLight,
-    marginBottom: 4,
-  },
-  parameterValue: {
-    ...CoffeeTypography.bodyLarge,
-    fontWeight: '600',
-    color: CoffeeColors.primary,
-  },
-
-  // 味覚セクション
-  tasteSection: {
-    marginTop: 8,
-  },
-  tasteGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  tasteItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  tasteLabel: {
-    ...CoffeeTypography.bodySmall,
-    color: CoffeeColors.textSecondary,
-    marginBottom: 6,
-  },
-  tasteStars: {
-    ...CoffeeTypography.bodyMedium,
-    fontFamily: 'monospace',
-    color: CoffeeColors.accent,
-    letterSpacing: 2,
   },
 });

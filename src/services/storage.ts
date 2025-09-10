@@ -43,7 +43,16 @@ export const storageService = {
   async getEntries(): Promise<CoffeeEntry[]> {
     try {
       const entriesJson = await AsyncStorage.getItem(STORAGE_KEY);
-      return entriesJson ? JSON.parse(entriesJson) : [];
+      const entries = entriesJson ? JSON.parse(entriesJson) : [];
+      // 既存データとの互換性のためにaromaとoverallフィールドを追加
+      return entries.map((entry: any) => ({
+        ...entry,
+        taste: {
+          ...entry.taste,
+          aroma: entry.taste?.aroma ?? 3,
+          overall: entry.taste?.overall ?? 3
+        }
+      }));
     } catch (error) {
       console.error('Error getting entries:', error);
       return [];

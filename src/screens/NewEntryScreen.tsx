@@ -23,7 +23,7 @@ export const NewEntryScreen: React.FC = () => {
         <Appbar.Content title="新規記録" titleStyle={styles.headerTitle} />
       </Appbar.Header>
       <View style={styles.content}>
-        <EntryForm onSubmit={handleSubmit} submitLabel="記録する" />
+        <EntryForm onSubmit={handleSubmit} submitLabel="記録する" newEntry={true} />
       </View>
     </View>
   );
@@ -46,4 +46,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

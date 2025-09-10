@@ -13,6 +13,8 @@ export interface CoffeeEntry {
     acidity: number; // 1-5の評価
     sweetness: number; // 1-5の評価
     bitterness: number; // 1-5の評価
+    aroma: number; // 1-5の評価
+    overall?: number; // 1-5の評価（美味しさ）
   };
   notes: string;
 }

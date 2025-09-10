@@ -14,7 +14,7 @@ export const CoffeeColors = {
   gradientStart: '#F5E6D3', // ラテカラー
   gradientMid: '#E6D7C3',   // 中間色
   gradientEnd: '#8B4513',   // 深煎りブラウン
-  
+
   // 背景色（ソフトラテ系）
   background: '#F5E6D3',
   backgroundDark: '#E6D7C3',
@@ -107,15 +107,16 @@ export const CoffeeStyles = {
   // カード（モダンなデザイン）
   card: {
     backgroundColor: CoffeeColors.surface,
-    borderRadius: 16, // より丸みを帯びた角
+    borderRadius: 10, // より丸みを帯びた角
     elevation: 6,     // より強い影
     shadowColor: CoffeeColors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 8,
-    borderWidth: 0, // ボーダーレス
+    borderWidth: 1,
+    borderColor: 'rgba(42, 33, 33, 0.3)',
   },
-  
+
   // 透明感のあるカード
   glassCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
