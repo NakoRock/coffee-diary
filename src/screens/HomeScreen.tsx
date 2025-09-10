@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -11,9 +11,10 @@ import {
 import { Button, Text, Card } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useEntries } from '../hooks/useEntries';
 import { useStats } from '../hooks/useStats';
-import { EntryCard } from '../components/EntryCard';
+import { EntryCardMini } from '../components/EntryCardMini';
 import { DashboardWidget } from '../components/DashboardWidget';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
 import { CoffeeAssets } from '../../constants/CoffeeIcons';
@@ -22,8 +23,14 @@ const { height } = Dimensions.get('window');
 
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
-  const { entries } = useEntries();
+  const { entries, loadEntries } = useEntries();
   const stats = useStats(entries);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadEntries();
+    }, [loadEntries]),
+  );
 
   const recentEntries = entries.slice(0, 3);
 
@@ -38,10 +45,7 @@ export const HomeScreen: React.FC = () => {
       </View>
 
       {/* 固定ヘッダーセクション */}
-      <View className="flex-col justify-end" style={styles.fixedHeader}>
-        <View style={styles.headerContent}>
-          <Text style={styles.subtitle}>今日も素敵なコーヒータイムを</Text>
-        </View>
+      <View className="flex-col justify-end mt-2" style={styles.fixedHeader}>
         {/* ダッシュボード統計 */}
         <View className="" style={styles.dashboardContainer}>
           <View style={styles.statsGrid}>
@@ -52,6 +56,7 @@ export const HomeScreen: React.FC = () => {
               color={CoffeeColors.accent}
             />
           </View>
+
           {/* 固定ボタンセクション（画面下部） */}
           <View className="p-2" style={styles.fixedButtons}>
             {/* メインボタンセクション */}
@@ -95,6 +100,29 @@ export const HomeScreen: React.FC = () => {
             </View>
           </View>
         </View>
+        {/* 直近の記録セクション */}
+
+        <View style={styles.recentEntriesSection}>
+          <Text style={styles.recentEntriesTitle}>直近の記録</Text>
+          <View style={styles.recentEntriesList}>
+            {recentEntries.length > 0 && (
+              <View>
+                {recentEntries.map((entry) => (
+                  <EntryCardMini
+                    key={entry.id}
+                    entry={entry}
+                    onPress={() => router.push(`/editEntry/${entry.id}`)}
+                  />
+                ))}
+              </View>
+            )}
+            {recentEntries.length === 0 && (
+              <Text className="mx-auto pb-3" style={CoffeeTypography.bodyMedium}>
+                まだ記録がありません
+              </Text>
+            )}
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -126,12 +154,6 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     zIndex: 2,
   },
-  headerContent: {
-    alignItems: 'center',
-
-    paddingVertical: 20,
-  },
-
   statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -148,14 +170,6 @@ const styles = StyleSheet.create({
   statsText: {
     ...CoffeeTypography.bodyLarge,
     fontWeight: '600',
-  },
-  subtitle: {
-    ...CoffeeTypography.bodyMedium,
-    fontStyle: 'italic',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   scrollView: {
     zIndex: 1,
@@ -192,6 +206,17 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     gap: 12,
+  },
+  // 直近記録セクション
+  recentEntriesSection: {
+    marginHorizontal: 10,
+    marginBottom: 16,
+    ...CoffeeStyles.glassCard,
+    padding: 16,
+  },
+
+  recentEntriesList: {
+    gap: 8,
   },
   bottomSpacer: {
     height: 50,
