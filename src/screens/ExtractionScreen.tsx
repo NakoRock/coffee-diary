@@ -121,7 +121,7 @@ export const ExtractionScreen: React.FC = () => {
   return (
     <View className="flex-1">
       <Appbar.Header style={{ backgroundColor: CoffeeColors.primary, elevation: 4 }}>
-        <Appbar.BackAction onPress={() => router.back()} color={CoffeeColors.surface} />
+        <Appbar.BackAction onPress={() => router.push('/')} color={CoffeeColors.surface} />
         <Appbar.Content
           title="抽出機能"
           titleStyle={{ ...CoffeeTypography.headerMedium, color: CoffeeColors.surface }}

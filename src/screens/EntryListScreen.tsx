@@ -48,7 +48,7 @@ export const EntryListScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
-        <Appbar.BackAction onPress={() => router.back()} color={CoffeeColors.surface} />
+        <Appbar.BackAction onPress={() => router.push('/')} color={CoffeeColors.surface} />
         <Appbar.Content title="記録一覧" titleStyle={styles.headerTitle} />
       </Appbar.Header>
       <View style={styles.content}>

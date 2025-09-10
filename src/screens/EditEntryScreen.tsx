@@ -85,7 +85,7 @@ export const EditEntryScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.header}>
-        <Appbar.BackAction onPress={() => router.back()} color={CoffeeColors.surface} />
+        <Appbar.BackAction onPress={() => router.push('/entryList')} color={CoffeeColors.surface} />
         <Appbar.Content
           title={isEditing ? '記録編集' : '記録確認'}
           titleStyle={styles.headerTitle}
