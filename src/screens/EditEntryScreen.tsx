@@ -77,6 +77,7 @@ export const EditEntryScreen: React.FC = () => {
     temperature: entry.temperature,
     beanAmount: entry.beanAmount,
     waterAmount: entry.waterAmount,
+    extractionEndTime: entry.extractionEndTime,
     taste: entry.taste,
     notes: entry.notes,
   };

@@ -12,8 +12,8 @@ export const CoffeeColors = {
 
   // グラデーション背景色（ラテ→深煎り）
   gradientStart: '#F5E6D3', // ラテカラー
-  gradientMid: '#E6D7C3',   // 中間色
-  gradientEnd: '#8B4513',   // 深煎りブラウン
+  gradientMid: '#E6D7C3', // 中間色
+  gradientEnd: '#8B4513', // 深煎りブラウン
 
   // 背景色（ソフトラテ系）
   background: '#F5E6D3',
@@ -60,7 +60,7 @@ export const CoffeeTypography = {
     fontFamily: 'serif',
   },
   headerSmall: {
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: '600' as const,
     color: CoffeeColors.primaryDark,
     fontFamily: 'serif',
@@ -108,7 +108,7 @@ export const CoffeeStyles = {
   card: {
     backgroundColor: CoffeeColors.surface,
     borderRadius: 10, // より丸みを帯びた角
-    elevation: 6,     // より強い影
+    elevation: 6, // より強い影
     shadowColor: CoffeeColors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 1,

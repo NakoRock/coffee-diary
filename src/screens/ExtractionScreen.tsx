@@ -7,8 +7,6 @@ import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/Co
 export const ExtractionScreen: React.FC = () => {
   const router = useRouter();
 
-  const [bloomTime, setBloomTime] = useState('30');
-  const [bloomWater, setBloomWater] = useState('50');
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [laps, setLaps] = useState<{ time: number; waterAmount: number }[]>([]);
@@ -84,11 +82,8 @@ export const ExtractionScreen: React.FC = () => {
 
   const finishExtraction = () => {
     setIsTimerRunning(false);
-    const totalWaterUsed =
-      parseInt(bloomWater) + laps.reduce((sum, lap) => sum + lap.waterAmount, 0);
+    const totalWaterUsed = laps.reduce((sum, lap) => sum + lap.waterAmount, 0);
     const extractionData = {
-      bloomTime: parseInt(bloomTime),
-      bloomWater: parseInt(bloomWater),
       totalTime: currentTime,
       laps: laps,
       totalWaterUsed,
@@ -97,7 +92,7 @@ export const ExtractionScreen: React.FC = () => {
 
     console.log('抽出記録:', extractionData);
     alert(
-      `抽出完了!\n蒸らし時間: ${bloomTime}秒\n蒸らし湯量: ${bloomWater}g\n総時間: ${formatTime(currentTime)}\nラップ数: ${laps.length}\n総湯量: ${totalWaterUsed}g`,
+      `抽出完了!\n総時間: ${formatTime(currentTime)}\nラップ数: ${laps.length}\n総湯量: ${totalWaterUsed}g`,
     );
 
     setCurrentTime(0);
@@ -137,46 +132,6 @@ export const ExtractionScreen: React.FC = () => {
         className="flex-1 p-5"
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
-        {/* ヘッダー部分 */}
-
-        {/* 設定セクション */}
-        <View style={[styles.section]} className="mb-5">
-          <Text style={styles.sectionTitle}>抽出設定</Text>
-
-          <View className="flex-row justify-between">
-            <View className="flex-1 mx-2">
-              <Text style={styles.settingLabel} className="text-center mb-2">
-                蒸らし時間
-              </Text>
-              <View style={styles.inputContainer} className="flex-row items-center">
-                <TextInput
-                  value={bloomTime}
-                  onChangeText={setBloomTime}
-                  keyboardType="numeric"
-                  style={styles.textInput}
-                  disabled={isTimerRunning}
-                />
-                <Text style={styles.unitText}>秒</Text>
-              </View>
-            </View>
-            <View className="flex-1 mx-2">
-              <Text style={styles.settingLabel} className="text-center mb-2">
-                蒸らし湯量
-              </Text>
-              <View style={styles.inputContainer} className="flex-row items-center">
-                <TextInput
-                  value={bloomWater}
-                  onChangeText={setBloomWater}
-                  keyboardType="numeric"
-                  style={styles.textInput}
-                  disabled={isTimerRunning}
-                />
-                <Text style={styles.unitText}>g</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
         {/* タイマーセクション */}
         <View style={[styles.section, styles.timerSection]} className="mb-5 items-center py-8">
           <View className="items-center mb-6">
@@ -301,29 +256,6 @@ const styles = StyleSheet.create({
     ...CoffeeTypography.caption,
     color: CoffeeColors.primary,
     marginBottom: 8,
-  },
-  settingLabel: {
-    ...CoffeeTypography.bodyMedium,
-    color: CoffeeColors.textSecondary,
-    fontWeight: '600',
-  },
-  inputContainer: {
-    backgroundColor: CoffeeColors.surfaceVariant,
-    borderColor: CoffeeColors.border,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-  },
-  textInput: {
-    ...CoffeeTypography.bodyLarge,
-    fontWeight: '600',
-    height: 50,
-    backgroundColor: 'transparent',
-  },
-  unitText: {
-    ...CoffeeTypography.bodyMedium,
-    color: CoffeeColors.textLight,
-    marginLeft: 8,
   },
   timerSection: {
     paddingVertical: 32,

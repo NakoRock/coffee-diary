@@ -14,7 +14,7 @@ import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useEntries } from '../hooks/useEntries';
 import { useStats } from '../hooks/useStats';
-import { EntryCardMini } from '../components/EntryCardMini';
+import { EntryCard } from '../components/EntryCard';
 import { DashboardWidget } from '../components/DashboardWidget';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
 import { CoffeeAssets } from '../../constants/CoffeeIcons';
@@ -26,13 +26,17 @@ export const HomeScreen: React.FC = () => {
   const { entries, loadEntries } = useEntries();
   const stats = useStats(entries);
 
+  const handleEdit = (entryId: string) => {
+    router.push(`/editEntry/${entryId}`);
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       loadEntries();
     }, [loadEntries]),
   );
 
-  const recentEntries = entries.slice(0, 3);
+  const recentEntries = entries.slice(0, 1);
 
   return (
     <View className="flex-1" style={styles.container}>
@@ -108,11 +112,7 @@ export const HomeScreen: React.FC = () => {
             {recentEntries.length > 0 && (
               <View>
                 {recentEntries.map((entry) => (
-                  <EntryCardMini
-                    key={entry.id}
-                    entry={entry}
-                    onPress={() => router.push(`/editEntry/${entry.id}`)}
-                  />
+                  <EntryCard key={entry.id} entry={entry} onEdit={handleEdit} />
                 ))}
               </View>
             )}

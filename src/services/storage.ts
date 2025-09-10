@@ -47,6 +47,7 @@ export const storageService = {
       // 既存データとの互換性のためにaromaとoverallフィールドを追加
       return entries.map((entry: any) => ({
         ...entry,
+        extractionEndTime: entry.extractionEndTime ?? undefined,
         taste: {
           ...entry.taste,
           aroma: entry.taste?.aroma ?? 3,

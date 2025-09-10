@@ -1,15 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Searchbar, Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useEntries } from '../hooks/useEntries';
 import { EntryCard } from '../components/EntryCard';
 import { CoffeeColors, CoffeeTypography } from '../../constants/CoffeeTheme';
 
 export const EntryListScreen: React.FC = () => {
   const router = useRouter();
-  const { entries, deleteEntry } = useEntries();
+  const { entries, deleteEntry, loadEntries } = useEntries();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // 画面がフォーカスされた時にエントリ一覧を再読み込み
+  useFocusEffect(
+    useCallback(() => {
+      loadEntries();
+    }, [loadEntries]),
+  );
 
   const filteredEntries = useMemo(() => {
     if (!searchQuery) return entries;

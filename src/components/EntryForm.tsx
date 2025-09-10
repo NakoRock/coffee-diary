@@ -31,6 +31,9 @@ export const EntryForm: React.FC<EntryFormProps> = ({
   );
   const [temperature, setTemperature] = useState(initialValues?.temperature?.toString() || '');
   const [beanAmount, setBeanAmount] = useState(initialValues?.beanAmount?.toString() || '');
+  const [extractionEndTime, setExtractionEndTime] = useState(
+    initialValues?.extractionEndTime?.toString() || '',
+  );
   const [acidity, setAcidity] = useState(initialValues?.taste.acidity?.toString() || '3');
   const [sweetness, setSweetness] = useState(initialValues?.taste.sweetness?.toString() || '3');
   const [bitterness, setBitterness] = useState(initialValues?.taste.bitterness?.toString() || '3');
@@ -54,6 +57,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
         temperature: Number(temperature),
         beanAmount: Number(beanAmount),
         waterAmount,
+        extractionEndTime: extractionEndTime ? Number(extractionEndTime) : undefined,
         taste: {
           acidity: Number(acidity),
           sweetness: Number(sweetness),
@@ -70,6 +74,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
     extractionSteps,
     temperature,
     beanAmount,
+    extractionEndTime,
     acidity,
     sweetness,
     bitterness,
@@ -95,6 +100,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
       temperature: Number(temperature),
       beanAmount: Number(beanAmount),
       waterAmount,
+      extractionEndTime: extractionEndTime ? Number(extractionEndTime) : undefined,
       taste: {
         acidity: Number(acidity),
         sweetness: Number(sweetness),
@@ -116,6 +122,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
       !isNaN(Number(temperature)) &&
       beanAmount.trim() !== '' &&
       !isNaN(Number(beanAmount)) &&
+      (extractionEndTime === '' || !isNaN(Number(extractionEndTime))) &&
       !isNaN(Number(acidity)) &&
       !isNaN(Number(sweetness)) &&
       !isNaN(Number(bitterness)) &&
@@ -288,6 +295,26 @@ export const EntryForm: React.FC<EntryFormProps> = ({
           </>
         )}
 
+        <Text style={styles.sectionTitle}>抽出完了時間</Text>
+        {readonly ? (
+          <View style={styles.readonlyField}>
+            <Text style={styles.readonlyLabel}>完了時間</Text>
+            <Text style={styles.readonlyValue}>
+              {extractionEndTime ? `${extractionEndTime}秒` : '未記録'}
+            </Text>
+          </View>
+        ) : (
+          <TextInput
+            label="抽出完了時間 (秒)"
+            value={extractionEndTime}
+            onChangeText={setExtractionEndTime}
+            keyboardType="numeric"
+            onFocus={() => scrollToInput(400 + extractionSteps.length * 60)}
+            style={styles.input}
+            placeholder="例: 180"
+          />
+        )}
+
         <Text style={styles.sectionTitle}>味の評価 (1-5)</Text>
         {readonly ? (
           <View>
@@ -323,7 +350,7 @@ export const EntryForm: React.FC<EntryFormProps> = ({
             onChangeText={setNotes}
             multiline
             numberOfLines={4}
-            onFocus={() => scrollToInput(600 + extractionSteps.length * 60)}
+            onFocus={() => scrollToInput(800 + extractionSteps.length * 60)}
             style={styles.input}
           />
         )}

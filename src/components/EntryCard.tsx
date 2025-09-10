@@ -128,7 +128,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, onEdit }) => {
           <View style={styles.beanIconContainer}>
             <Text style={styles.beanIcon}>{CoffeeIcons.coffeeBean}</Text>
           </View>
-          <View style={styles.headerInfo}>
+          <View className="pr-1" style={styles.headerInfo}>
             <Text style={styles.beanType}>{entry.beanType}</Text>
             <Text style={styles.dateText}>{new Date(entry.date).toLocaleDateString('ja-JP')}</Text>
           </View>

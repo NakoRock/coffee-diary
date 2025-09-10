@@ -9,6 +9,7 @@ export interface CoffeeEntry {
   temperature: number;
   beanAmount: number; // 豆の量（グラム）
   waterAmount: number; // 湯量（グラム）
+  extractionEndTime?: number; // 抽出完了時間（秒数）
   taste: {
     acidity: number; // 1-5の評価
     sweetness: number; // 1-5の評価
