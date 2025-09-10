@@ -1,15 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   TouchableOpacity,
-  ScrollView,
   ImageBackground,
   Dimensions,
   StyleSheet,
   Image,
 } from 'react-native';
-import { Button, Text, Card } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useEntries } from '../hooks/useEntries';
@@ -44,8 +42,7 @@ export const HomeScreen: React.FC = () => {
       <View style={[styles.backgroundSection, { height: height }]}>
         <ImageBackground
           source={require('../../assets/images/main.jpg')}
-          className="flex-1"
-          style={styles.backgroundImage}></ImageBackground>
+          className="flex-1 w-full h-full"></ImageBackground>
       </View>
 
       {/* 固定ヘッダーセクション */}
@@ -64,7 +61,7 @@ export const HomeScreen: React.FC = () => {
           {/* 固定ボタンセクション（画面下部） */}
           <View className="p-2" style={styles.fixedButtons}>
             {/* メインボタンセクション */}
-            <View style={styles.mainCardsRow}>
+            <View>
               <View className="flex-row justify-center">
                 <TouchableOpacity
                   style={styles.extractionCard}
@@ -79,7 +76,7 @@ export const HomeScreen: React.FC = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className="flex-1"
+                  className="flex-1 flex items-center"
                   style={styles.entryListCard}
                   onPress={() => router.push('/entryList')}>
                   <Image
@@ -139,13 +136,6 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 1,
   },
-  backgroundImage: {
-    width: '100%',
-    height: '100%',
-  },
-  gradient: {
-    position: 'relative',
-  },
   fixedHeader: {
     position: 'absolute',
     top: 0,
@@ -153,15 +143,6 @@ const styles = StyleSheet.create({
     right: 0,
     paddingTop: 40,
     zIndex: 2,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   statsEmoji: {
     fontSize: 16,
@@ -224,12 +205,9 @@ const styles = StyleSheet.create({
   fixedButtons: {
     zIndex: 3,
   },
-  mainCardsRow: {},
   entryListCard: {
     ...CoffeeStyles.card,
     paddingVertical: 20,
-
-    alignItems: 'center',
     backgroundColor: CoffeeColors.accentLight,
   },
   buttonEmoji: {
@@ -242,21 +220,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     color: '#FFFFFF',
   },
-  newEntryCardSubtitle: {
-    ...CoffeeTypography.bodySmall,
-    textAlign: 'center',
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
   entryListCardTitle: {
     ...CoffeeTypography.headerSmall,
     fontSize: 16,
     marginBottom: 4,
     color: CoffeeColors.primary,
-  },
-  entryListCardSubtitle: {
-    ...CoffeeTypography.bodySmall,
-    textAlign: 'center',
-    color: CoffeeColors.textSecondary,
   },
   extractionCard: {
     ...CoffeeStyles.card,
@@ -270,34 +238,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 4,
     color: CoffeeColors.primary,
-  },
-  extractionCardSubtitle: {
-    ...CoffeeTypography.bodySmall,
-    textAlign: 'center',
-    color: CoffeeColors.textSecondary,
-  },
-  // FAB スタイル
-  fabContainer: {
-    position: 'absolute',
-    bottom: 120,
-    right: 20,
-    zIndex: 10,
-  },
-  fab: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 12,
-    shadowColor: CoffeeColors.shadow,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  fabIcon: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    position: 'absolute',
   },
 });
