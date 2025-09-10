@@ -507,8 +507,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   halfInput: {
-    flex: 1,
-    marginHorizontal: 4,
+    width: '48%',
   },
   // 固定フッター用スタイル
   footer: {
