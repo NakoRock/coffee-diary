@@ -16,13 +16,13 @@ Coffee Diaryは、コーヒーの抽出記録を管理するためのモバイ�
 
 ## 🛠️ 技術スタック
 
-- **Expo** (v53.0.22) - React Nativeアプリ開発フレームワーク
-- **React Native** (0.79.5) - クロスプラットフォームモバイル開発
-- **TypeScript** (v5.8.3) - 型安全なJavaScript
-- **NativeWind** (v4.1.23) - TailwindCSS for React Native
-- **React Native Paper** (v5.13.3) - Material Design UI コンポーネント
-- **AsyncStorage** (v2.1.2) - ローカルデータ保存
-- **Expo Router** (v5.1.5) - ファイルベースナビゲーション
+- **Expo** (v53.0.22) 
+- **React Native** (0.79.5)
+- **TypeScript** (v5.8.3) 
+- **NativeWind** (v4.1.23)
+- **React Native Paper** (v5.13.3)
+- **AsyncStorage** (v2.1.2)
+- **Expo Router** (v5.1.5)
 
 ## 🚀 セットアップ
 
@@ -35,10 +35,6 @@ Coffee Diaryは、コーヒーの抽出記録を管理するためのモバイ�
 ### インストール
 
 ```bash
-# リポジトリをクローン
-git clone https://github.com/your-username/coffee-diary.git
-cd coffee-diary
-
 # 依存関係をインストール
 npm install
 
@@ -114,31 +110,8 @@ coffee-diary/
 - 各記録の詳細表示・編集機能
 - 削除機能
 
-## 📱 ビルド・デプロイ
-
-このプロジェクトはEAS Build（Expo Application Services）に対応しています。
-
-```bash
-# 開発ビルド
-eas build --profile development
-
-# プレビュービルド
-eas build --profile preview
-
-# プロダクションビルド
-eas build --profile production
-```
-
-## 🧪 開発
-
-### 利用可能なスクリプト
-
-- `npm start` - 開発サーバー起動
-- `npm run android` - Android版実行
-- `npm run ios` - iOS版実行
-- `npm run web` - Web版実行
-- `npm run lint` - ESLintによるコードチェック
-
 ---
 
 _コーヒーを愛するすべての人のために_ ☕
+
+※READMEは一部Claude Codeで生成しています。
