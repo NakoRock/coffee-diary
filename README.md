@@ -139,13 +139,6 @@ eas build --profile production
 - `npm run web` - Web版実行
 - `npm run lint` - ESLintによるコードチェック
 
-### 開発時の注意点
-
-- TypeScriptの型チェックを有効活用してください
-- NativeWindによるスタイリングを使用しています
-- カスタムテーマは `constants/CoffeeTheme.ts` で管理されています
-- データ永続化には AsyncStorage を使用しています
-
 ---
 
 _コーヒーを愛するすべての人のために_ ☕
