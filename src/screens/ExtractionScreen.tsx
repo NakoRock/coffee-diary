@@ -191,14 +191,12 @@ export const ExtractionScreen: React.FC = () => {
             <View style={[styles.section]} className="mb-5">
               <Text style={styles.sectionTitle}>抽出設定</Text>
               <View style={styles.divider} />
-
               <TextInput
                 label="豆の種類"
                 value={beanType}
                 onChangeText={setBeanType}
                 style={styles.input}
               />
-
               <View className="flex-row justify-between">
                 <TextInput
                   label="豆の量 (g)"
@@ -215,7 +213,6 @@ export const ExtractionScreen: React.FC = () => {
                   style={[styles.input, styles.halfInput]}
                 />
               </View>
-
               <TextInput
                 label="蒸らし湯量 (g)"
                 value={steamAmount}
@@ -236,10 +233,10 @@ export const ExtractionScreen: React.FC = () => {
               <View style={styles.extractionSteps}>
                 <Text style={styles.extractionStepsTitle}>抽出手順</Text>
                 <Text style={styles.extractionStepItem}>
-                  • お湯を注ぐ前に「お湯を注ぐ」をタップ。
+                  • 追加でお湯を注ぐ前に「お湯を注ぐ」をタップ。
                 </Text>
                 <Text style={styles.extractionStepItem}>
-                  • 注いだ後に、注湯量を入力して「記録」。
+                  • 注いだ後に、注湯量を入力して「記録」をタップ。
                 </Text>
                 <Text style={styles.extractionStepItem}>• 上記の作業を繰り返す。</Text>
                 <Text style={styles.extractionStepItem}>• 抽出が終わったら「完了」をタップ。</Text>
@@ -323,7 +320,7 @@ export const ExtractionScreen: React.FC = () => {
           <View style={styles.footer}>
             {!isTimerRunning ? (
               <TouchableOpacity style={styles.footerStartButton} onPress={startTimer}>
-                <Text style={styles.startButtonText}>抽出開始</Text>
+                <Text style={styles.startButtonText}>蒸らし湯量を注いだらスタート</Text>
               </TouchableOpacity>
             ) : (
               <View className="flex-row justify-between">
