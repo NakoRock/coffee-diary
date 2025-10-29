@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, ScrollView, StyleSheet, Platform } from 'react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Platform,
+  PanResponder,
+  GestureResponderEvent,
+} from 'react-native';
 import { Text, Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
@@ -12,10 +20,12 @@ export const ExtractionScreen: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [laps, setLaps] = useState<{ time: number; waterAmount: number }[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
-  const [lastLapTime, setLastLapTime] = useState(0);
   const [currentWaterAmount, setCurrentWaterAmount] = useState(0);
-  const [showWaterInput, setShowWaterInput] = useState(false);
   const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
+
+  const KNOB_MIN = 0;
+  const KNOB_MAX = 500;
+  const knobRadius = 100;
 
   useEffect(() => {
     let interval: number;
@@ -26,11 +36,6 @@ export const ExtractionScreen: React.FC = () => {
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, startTime]);
-
-  const formatTime = (milliseconds: number): string => {
-    const seconds = Math.floor(milliseconds / 1000);
-    return `${seconds}秒`;
-  };
 
   const formatDigitalTime = (milliseconds: number): string => {
     const totalSeconds = Math.floor(milliseconds / 1000);
@@ -44,65 +49,60 @@ export const ExtractionScreen: React.FC = () => {
   const startTimer = () => {
     const now = Date.now();
     setStartTime(now);
-    setLastLapTime(now);
     setIsTimerRunning(true);
     setCurrentTime(0);
     setLaps([]);
+    setRecordStartTime(null);
+    setCurrentWaterAmount(0);
   };
 
   const recordLap = () => {
-    if (startTime && lastLapTime) {
-      // 注湯開始時の時間を記録
-      const now = Date.now();
-      setRecordStartTime(now);
+    if (!startTime) {
+      return;
+    }
 
-      // 直前のラップの注湯量を初期値として設定
+    const now = Date.now();
+
+    setLaps((prevLaps) => {
+      if (recordStartTime && currentWaterAmount > 0) {
+        const cumulativeTime = prevLaps.length === 0 ? 0 : recordStartTime - startTime;
+        return [...prevLaps, { time: cumulativeTime, waterAmount: currentWaterAmount }];
+      }
+      return prevLaps;
+    });
+
+    if (!recordStartTime) {
       if (laps.length > 0) {
-        const lastLapAmount = laps[laps.length - 1].waterAmount;
-        setCurrentWaterAmount(lastLapAmount);
+        setCurrentWaterAmount(laps[laps.length - 1].waterAmount);
       } else {
         setCurrentWaterAmount(0);
       }
-      setShowWaterInput(true);
     }
-  };
 
-  const addWaterAmount = (amount: number) => {
-    setCurrentWaterAmount((prev) => prev + amount);
-  };
-
-  const resetWaterAmount = () => {
-    if (laps.length > 0) {
-      setCurrentWaterAmount(laps[laps.length - 1].waterAmount);
-    } else {
-      setCurrentWaterAmount(0);
-    }
-  };
-
-  const confirmLap = () => {
-    if (startTime && recordStartTime && currentWaterAmount > 0) {
-      // 最初のステップは0秒、2回目以降は実際の経過時間
-      const cumulativeTime = laps.length === 0 ? 0 : recordStartTime - startTime;
-      setLaps((prev) => [...prev, { time: cumulativeTime, waterAmount: currentWaterAmount }]);
-      setLastLapTime(Date.now());
-      setCurrentWaterAmount(0);
-      setShowWaterInput(false);
-      setRecordStartTime(null); // 使用後にリセット
-    }
-  };
-
-  const cancelLap = () => {
-    setCurrentWaterAmount(0);
-    setShowWaterInput(false);
-    setRecordStartTime(null); // キャンセル時もリセット
+    setRecordStartTime(now);
   };
 
   const finishExtraction = () => {
     setIsTimerRunning(false);
-    const totalWaterUsed = laps.reduce((sum, lap) => sum + lap.waterAmount, 0);
+    if (!startTime) {
+      return;
+    }
+
+    const lapsIncludingPending =
+      recordStartTime && currentWaterAmount > 0
+        ? [
+            ...laps,
+            {
+              time: laps.length === 0 ? 0 : recordStartTime - startTime,
+              waterAmount: currentWaterAmount,
+            },
+          ]
+        : laps;
+
+    const totalWaterUsed = lapsIncludingPending.reduce((sum, lap) => sum + lap.waterAmount, 0);
 
     // laps配列をCoffeeEntry.extractionStepsフォーマットに変換
-    const extractionSteps = laps.map((lap) => ({
+    const extractionSteps = lapsIncludingPending.map((lap) => ({
       time: Math.floor(lap.time / 1000), // ミリ秒を秒に変換
       grams: lap.waterAmount, // waterAmount -> grams
     }));
@@ -121,7 +121,8 @@ export const ExtractionScreen: React.FC = () => {
     setCurrentTime(0);
     setLaps([]);
     setStartTime(null);
-    setLastLapTime(0);
+    setRecordStartTime(null);
+    setCurrentWaterAmount(0);
 
     // NewEntryScreenにデータを渡してナビゲート
     router.push({
@@ -132,27 +133,73 @@ export const ExtractionScreen: React.FC = () => {
     });
   };
 
-  const getIncrementButtonStyle = (amount: number) => {
-    switch (amount) {
-      case 100:
-        return { backgroundColor: CoffeeColors.error };
-      case 50:
-        return { backgroundColor: CoffeeColors.warning };
-      case 10:
-        return { backgroundColor: CoffeeColors.success };
-      case 5:
-        return { backgroundColor: CoffeeColors.primary };
-      case 1:
-        return { backgroundColor: CoffeeColors.primaryLight };
-      case -10:
-        return { backgroundColor: CoffeeColors.accentDark };
-      default:
-        return {};
-    }
-  };
-
   const latestRecordedWater = laps.length > 0 ? laps[laps.length - 1].waterAmount : 0;
-  const displayWaterAmount = showWaterInput ? currentWaterAmount : latestRecordedWater;
+  const displayWaterAmount = recordStartTime ? currentWaterAmount : latestRecordedWater;
+
+  const clamp = useCallback((value: number, min: number, max: number) => {
+    return Math.min(Math.max(value, min), max);
+  }, []);
+
+  const updateAmountFromAngle = useCallback(
+    (angle: number) => {
+      const normalizedAngle = ((angle + 450) % 360 + 360) % 360;
+      const ratio = normalizedAngle / 360;
+      const grams = Math.round(KNOB_MIN + ratio * (KNOB_MAX - KNOB_MIN));
+      setCurrentWaterAmount((prev) => {
+        if (prev === grams) {
+          return prev;
+        }
+        return clamp(grams, KNOB_MIN, KNOB_MAX);
+      });
+    },
+    [KNOB_MIN, KNOB_MAX, clamp],
+  );
+
+  const handleKnobGesture = useCallback(
+    (event: GestureResponderEvent) => {
+      const { locationX, locationY } = event.nativeEvent;
+      const dx = locationX - knobRadius;
+      const dy = knobRadius - locationY;
+      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      updateAmountFromAngle(angle);
+    },
+    [knobRadius, updateAmountFromAngle],
+  );
+
+  const knobResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: handleKnobGesture,
+        onPanResponderMove: (event) => handleKnobGesture(event),
+      }),
+    [handleKnobGesture],
+  );
+
+  const knobAngle = useMemo(() => {
+    if (KNOB_MAX === KNOB_MIN) {
+      return 0;
+    }
+    return ((currentWaterAmount - KNOB_MIN) / (KNOB_MAX - KNOB_MIN)) * 360;
+  }, [KNOB_MAX, KNOB_MIN, currentWaterAmount]);
+
+  const adjustWaterAmount = useCallback(
+    (delta: number) => {
+      setCurrentWaterAmount((prev) => clamp(prev + delta, KNOB_MIN, KNOB_MAX));
+    },
+    [KNOB_MIN, KNOB_MAX, clamp],
+  );
+
+  const resetWaterAmount = useCallback(() => {
+    if (laps.length > 0) {
+      setCurrentWaterAmount(laps[laps.length - 1].waterAmount);
+    } else {
+      setCurrentWaterAmount(0);
+    }
+  }, [laps]);
+
+  const pendingLapCount = recordStartTime ? 1 : 0;
   return (
     <View className="flex-1">
       <Appbar.Header style={{ backgroundColor: CoffeeColors.primary, elevation: 4 }}>
@@ -178,12 +225,14 @@ export const ExtractionScreen: React.FC = () => {
               <View style={styles.extractionSteps}>
                 <Text style={styles.extractionStepsTitle}>抽出手順</Text>
                 <Text style={styles.extractionStepItem}>
-                  • 追加でお湯を注ぐ前に「お湯を注ぐ」をタップ。
+                  • 追加でお湯を注ぐ前に「注湯開始」をタップ。
                 </Text>
                 <Text style={styles.extractionStepItem}>
-                  • 注いだ後に、注湯量を入力して「記録」をタップ。
+                  • 注湯中はダイヤルを回して注湯量を調整。
                 </Text>
-                <Text style={styles.extractionStepItem}>• 上記の作業を繰り返す。</Text>
+                <Text style={styles.extractionStepItem}>
+                  • 次の「注湯開始」または「完了」を押すと前回の記録が保存されます。
+                </Text>
                 <Text style={styles.extractionStepItem}>• 抽出が終わったら「完了」をタップ。</Text>
               </View>
             </View>
@@ -210,95 +259,89 @@ export const ExtractionScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* 注湯量入力モーダル */}
-          {showWaterInput && (
-            <View
-              style={styles.modalOverlay}
-              className="absolute top-0 left-0 right-0 bottom-0 justify-center items-center z-[1000]">
-              <TouchableOpacity
-                style={styles.modalBackdrop}
-                className="absolute top-0 left-0 right-0 bottom-0"
-                activeOpacity={1}
-                onPress={cancelLap}
-              />
-              <View style={styles.modal} className="w-11/12 max-w-[400px]">
-                <Text style={styles.modalTitle} className="text-center mb-5">
-                  注湯量を設定
-                </Text>
-
-                <View
-                  style={styles.currentAmountContainer}
-                  className="items-center py-4 rounded-lg mb-5">
-                  <Text style={styles.currentAmountLabel}>現在の設定</Text>
-                  <Text style={styles.currentAmountText}>{currentWaterAmount}g</Text>
-                  <Text style={styles.currentTimeText}>現在時間: {formatTime(currentTime)}</Text>
-                  <TouchableOpacity style={styles.resetButton} onPress={resetWaterAmount}>
-                    <Text style={styles.resetButtonText}>リセット</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View className="flex-row flex-wrap justify-between mb-5">
-                  {[100, 50, 10, 5, 1, -10].map((amount) => (
-                    <TouchableOpacity
-                      key={amount}
-                      style={[styles.incrementButton, getIncrementButtonStyle(amount)]}
-                      className="w-[48%] py-3 px-4 rounded-lg items-center mb-2"
-                      onPress={() => addWaterAmount(amount)}>
-                      {amount > 0 && <Text style={styles.incrementButtonText}>+{amount}g</Text>}
-                      {amount < 0 && <Text style={styles.incrementButtonText}>{amount}g</Text>}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-
-                <View className="flex-row justify-between">
-                  <TouchableOpacity
-                    style={styles.modalCancelButton}
-                    className="flex-1 mr-2 py-3 items-center"
-                    onPress={cancelLap}>
-                    <Text style={styles.modalCancelButtonText}>キャンセル</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.modalConfirmButton,
-                      currentWaterAmount === 0 && { opacity: 0.5 },
-                    ]}
-                    className="flex-1 ml-2 py-3 items-center"
-                    onPress={confirmLap}
-                    disabled={currentWaterAmount === 0}>
-                    <Text style={styles.modalConfirmButtonText}>記録 ({currentWaterAmount}g)</Text>
-                  </TouchableOpacity>
+          <View style={[styles.section, styles.knobSection]} className="mb-5 items-center">
+            <Text style={styles.knobTitle}>注湯量コントロール</Text>
+            <Text style={styles.knobDescription}>
+              ダイヤルを回して次の注湯量を調整できます。リセットで直前の値に戻ります。
+            </Text>
+            <View style={styles.knobWrapper}>
+              <View
+                style={styles.knobTouchableArea}
+                {...knobResponder.panHandlers}
+                accessible
+                accessibilityRole="adjustable"
+                accessibilityLabel="注湯量設定ダイヤル"
+                accessibilityHint={`現在の設定は ${currentWaterAmount} グラムです`}>
+                <View style={styles.knobContainer}>
+                  <View style={styles.knobCircle}>
+                    <View style={[styles.knobIndicator, { transform: [{ rotate: `${knobAngle}deg` }] }]}>
+                      <View style={styles.knobIndicatorStem} />
+                      <View style={styles.knobIndicatorHead} />
+                    </View>
+                    <View style={styles.knobValueContainer}>
+                      <Text style={styles.knobValue}>{currentWaterAmount}</Text>
+                      <Text style={styles.knobValueUnit}>g</Text>
+                    </View>
+                  </View>
                 </View>
               </View>
+              <View className="flex-row justify-between w-full mt-4">
+                <TouchableOpacity
+                  style={[styles.knobAdjustButton, styles.knobAdjustButtonSecondary]}
+                  onPress={() => adjustWaterAmount(-5)}>
+                  <Text style={styles.knobAdjustButtonText}>-5g</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.knobAdjustButton} onPress={() => adjustWaterAmount(5)}>
+                  <Text style={styles.knobAdjustButtonText}>+5g</Text>
+                </TouchableOpacity>
+              </View>
+              <View className="flex-row justify-between w-full mt-3">
+                <TouchableOpacity
+                  style={[styles.knobAdjustButton, styles.knobAdjustButtonSecondary]}
+                  onPress={() => adjustWaterAmount(-1)}>
+                  <Text style={styles.knobAdjustButtonText}>-1g</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.knobAdjustButton} onPress={() => adjustWaterAmount(1)}>
+                  <Text style={styles.knobAdjustButtonText}>+1g</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity style={styles.resetButton} onPress={resetWaterAmount}>
+                <Text style={styles.resetButtonText}>リセット</Text>
+              </TouchableOpacity>
+              <Text style={styles.knobInfoText}>
+                最新の記録: {latestRecordedWater}g
+                {recordStartTime ? '（計測中）' : ''}
+              </Text>
             </View>
-          )}
+          </View>
+
         </ScrollView>
 
-        {/* 固定フッター - 注湯量入力モーダル表示中は非表示 */}
-        {!showWaterInput && (
-          <View style={styles.footer}>
-            {!isTimerRunning ? (
-              <TouchableOpacity style={styles.footerStartButton} onPress={startTimer}>
-                <Text style={styles.startButtonText}>抽出を開始</Text>
+        <View style={styles.footer}>
+          {!isTimerRunning ? (
+            <TouchableOpacity style={styles.footerStartButton} onPress={startTimer}>
+              <Text style={styles.startButtonText}>抽出を開始</Text>
+            </TouchableOpacity>
+          ) : (
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                style={styles.footerLapButton}
+                className="flex-1 mr-2"
+                onPress={recordLap}>
+                <Text style={styles.lapButtonText}>注湯開始</Text>
+                <Text style={styles.lapCountText}>
+                  注湯回数: {laps.length + pendingLapCount}
+                </Text>
               </TouchableOpacity>
-            ) : (
-              <View className="flex-row justify-between">
-                <TouchableOpacity
-                  style={styles.footerLapButton}
-                  className="flex-1 mr-2"
-                  onPress={recordLap}>
-                  <Text style={styles.lapButtonText}>注湯開始</Text>
-                  <Text style={styles.lapCountText}>注湯回数: {laps.length}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.footerFinishButton}
-                  className="flex-1 ml-2 flex-column justify-center"
-                  onPress={finishExtraction}>
-                  <Text style={styles.finishButtonText}>完了</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        )}
+              <TouchableOpacity
+                style={styles.footerFinishButton}
+                className="flex-1 ml-2 flex-column justify-center"
+                onPress={finishExtraction}>
+                <Text style={styles.finishButtonText}>完了</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -438,83 +481,121 @@ const styles = StyleSheet.create({
     color: CoffeeColors.primary,
     fontWeight: '600',
   },
-  modalOverlay: {
-    backgroundColor: 'transparent', // 透明度はclassNameで管理
-  },
-  modalBackdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modal: {
-    ...CoffeeStyles.section,
-    backgroundColor: CoffeeColors.surface,
-    elevation: 8,
-    shadowColor: CoffeeColors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  modalTitle: {
-    ...CoffeeTypography.headerMedium,
-  },
-  currentAmountContainer: {
-    backgroundColor: CoffeeColors.overlayDark,
-  },
-  currentAmountLabel: {
-    ...CoffeeTypography.bodySmall,
-    color: CoffeeColors.textLight,
-    marginBottom: 8,
-  },
-  currentAmountText: {
-    ...CoffeeTypography.timer,
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  currentTimeText: {
-    ...CoffeeTypography.bodyMedium,
-    color: CoffeeColors.primary,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
   resetButton: {
     ...CoffeeStyles.outlinedButton,
     paddingVertical: 8,
     paddingHorizontal: 16,
+    marginTop: 16,
   },
   resetButtonText: {
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.primary,
     fontWeight: '600',
   },
-  incrementButton: {
-    elevation: 2,
+  knobSection: {
+    alignItems: 'center',
   },
-  incrementButtonText: {
-    ...CoffeeTypography.bodyMedium,
-    color: CoffeeColors.surface,
-    fontWeight: '600',
-  },
-  modalCancelButton: {
-    ...CoffeeStyles.outlinedButton,
-  },
-  modalCancelButtonText: {
-    ...CoffeeTypography.bodyMedium,
+  knobTitle: {
+    ...CoffeeTypography.bodyLarge,
     color: CoffeeColors.primary,
     fontWeight: '600',
+    marginBottom: 8,
   },
-  modalConfirmButton: {
+  knobDescription: {
+    ...CoffeeTypography.bodySmall,
+    color: CoffeeColors.textLight,
+    textAlign: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  knobWrapper: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  knobTouchableArea: {
+    width: 220,
+    height: 220,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  knobContainer: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: CoffeeColors.overlayDark,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    position: 'relative',
+  },
+  knobCircle: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  knobIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 24,
+  },
+  knobIndicatorStem: {
+    width: 2,
+    height: '35%',
+    borderRadius: 1,
+    backgroundColor: CoffeeColors.accent,
+  },
+  knobIndicatorHead: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: CoffeeColors.accent,
+    marginTop: 6,
+    shadowColor: CoffeeColors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+  },
+  knobValueContainer: {
+    alignItems: 'center',
+  },
+  knobValue: {
+    ...CoffeeTypography.headerLarge,
+    color: CoffeeColors.primary,
+  },
+  knobValueUnit: {
+    ...CoffeeTypography.bodySmall,
+    color: CoffeeColors.textLight,
+    marginTop: 4,
+  },
+  knobAdjustButton: {
     ...CoffeeStyles.primaryButton,
+    flex: 1,
+    marginHorizontal: 4,
+    paddingVertical: 12,
+    alignItems: 'center',
   },
-  modalConfirmButtonText: {
+  knobAdjustButtonSecondary: {
+    backgroundColor: CoffeeColors.overlayDark,
+    borderWidth: 1,
+    borderColor: CoffeeColors.primary,
+  },
+  knobAdjustButtonText: {
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.surface,
     fontWeight: '600',
   },
-  // 入力フォーム用スタイル
-  input: {
-    marginBottom: 16,
-  },
-  halfInput: {
-    width: '48%',
+  knobInfoText: {
+    ...CoffeeTypography.bodySmall,
+    color: CoffeeColors.textLight,
+    marginTop: 12,
   },
   // 固定フッター用スタイル
   footer: {
