@@ -175,6 +175,14 @@ export const ExtractionScreen: React.FC = () => {
 
   const latestRecordedWater = laps.length > 0 ? laps[laps.length - 1].waterAmount : 0;
   const displayWaterAmount = showWaterInput ? currentWaterAmount : latestRecordedWater;
+  const scaleTicks = React.useMemo(
+    () =>
+      Array.from({ length: 11 }).map((_, index) => ({
+        value: index * 50,
+        isMajor: index % 2 === 0,
+      })),
+    []
+  );
 
   return (
     <View className="flex-1">
@@ -255,7 +263,7 @@ export const ExtractionScreen: React.FC = () => {
                 </View>
                 <View style={[styles.displayColumn, styles.displaySeparator]}>
                   <Text style={styles.digitalValue}>
-                    {displayWaterAmount.toString().padStart(3, '0')}
+                    {displayWaterAmount.toString().padStart(4, '0')}
                   </Text>
                   <Text style={styles.displayLabel}>GRAM</Text>
                 </View>
@@ -328,16 +336,30 @@ export const ExtractionScreen: React.FC = () => {
 
         <View style={styles.scaleBaseContainer}>
           <View style={styles.scaleBase}>
-            <View style={styles.scaleRuler}>
-              {Array.from({ length: 21 }).map((_, index) => {
-                const isMajor = index % 5 === 0;
-                return (
-                  <View
-                    key={index}
-                    style={[styles.scaleTick, isMajor ? styles.scaleTickMajor : styles.scaleTickMinor]}
-                  />
-                );
-              })}
+            <View style={styles.scaleRulerTrack}>
+              <View style={styles.scaleRulerNotches}>
+                {scaleTicks.map((tick, index) => (
+                  <View key={tick.value} style={styles.scaleTickWrapper}>
+                    <View
+                      style={[
+                        styles.scaleTick,
+                        tick.isMajor ? styles.scaleTickMajor : styles.scaleTickMinor,
+                      ]}
+                    />
+                    {tick.isMajor && (
+                      <Text
+                        style={[
+                          styles.scaleTickLabel,
+                          styles.scaleTickLabelMajor,
+                          index === 0 && styles.scaleTickLabelEdgeStart,
+                          index === scaleTicks.length - 1 && styles.scaleTickLabelEdgeEnd,
+                        ]}>
+                        {tick.value}
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </View>
             </View>
           </View>
         </View>
@@ -569,32 +591,60 @@ const styles = StyleSheet.create({
   scaleBase: {
     backgroundColor: '#0F0F0F',
     borderRadius: 28,
-    height: 100,
+    height: 110,
     justifyContent: 'flex-end',
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingHorizontal: 28,
+    paddingBottom: 28,
     shadowColor: 'rgba(0, 0, 0, 0.4)',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
     shadowRadius: 10,
     elevation: 8,
   },
-  scaleRuler: {
+  scaleRulerTrack: {
+    width: '100%',
+    height: 42,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 18,
+    justifyContent: 'center',
+    backgroundColor: '#050505',
+  },
+  scaleRulerNotches: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    height: 28,
+  },
+  scaleTickWrapper: {
+    alignItems: 'center',
+    flex: 1,
   },
   scaleTick: {
     width: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
     borderRadius: 2,
   },
   scaleTickMajor: {
-    height: 24,
+    height: 26,
   },
   scaleTickMinor: {
-    height: 12,
+    height: 16,
+  },
+  scaleTickLabel: {
+    marginTop: 6,
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.4)',
+  },
+  scaleTickLabelMajor: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontWeight: '600',
+  },
+  scaleTickLabelEdgeStart: {
+    alignSelf: 'flex-start',
+  },
+  scaleTickLabelEdgeEnd: {
+    alignSelf: 'flex-end',
   },
   modalCancelButton: {
     ...CoffeeStyles.outlinedButton,
