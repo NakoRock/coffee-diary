@@ -21,7 +21,6 @@ export const ExtractionScreen: React.FC = () => {
   const [beanType, setBeanType] = useState('');
   const [beanAmount, setBeanAmount] = useState('');
   const [temperature, setTemperature] = useState('');
-  const [steamAmount, setSteamAmount] = useState('');
 
   useEffect(() => {
     let interval: number;
@@ -58,13 +57,7 @@ export const ExtractionScreen: React.FC = () => {
     setLastLapTime(now);
     setIsTimerRunning(true);
     setCurrentTime(0);
-
-    // 蒸らし湯量が入力されている場合は初期ステップとして追加
-    if (steamAmount && parseFloat(steamAmount) > 0) {
-      setLaps([{ time: 0, waterAmount: parseFloat(steamAmount) }]);
-    } else {
-      setLaps([]);
-    }
+    setLaps([]);
   };
 
   const recordLap = () => {
@@ -98,7 +91,8 @@ export const ExtractionScreen: React.FC = () => {
 
   const confirmLap = () => {
     if (startTime && recordStartTime && currentWaterAmount > 0) {
-      const cumulativeTime = recordStartTime - startTime;
+      // 最初のステップは0秒、2回目以降は実際の経過時間
+      const cumulativeTime = laps.length === 0 ? 0 : recordStartTime - startTime;
       setLaps((prev) => [...prev, { time: cumulativeTime, waterAmount: currentWaterAmount }]);
       setLastLapTime(Date.now());
       setCurrentWaterAmount(0);
@@ -213,14 +207,6 @@ export const ExtractionScreen: React.FC = () => {
                   style={[styles.input, styles.halfInput]}
                 />
               </View>
-              <TextInput
-                label="蒸らし湯量 (g)"
-                value={steamAmount}
-                onChangeText={setSteamAmount}
-                keyboardType="numeric"
-                style={styles.input}
-                placeholder="例: 50"
-              />
             </View>
           )}
 
@@ -320,7 +306,7 @@ export const ExtractionScreen: React.FC = () => {
           <View style={styles.footer}>
             {!isTimerRunning ? (
               <TouchableOpacity style={styles.footerStartButton} onPress={startTimer}>
-                <Text style={styles.startButtonText}>蒸らし湯量を注いだらスタート</Text>
+                <Text style={styles.startButtonText}>抽出を開始</Text>
               </TouchableOpacity>
             ) : (
               <View className="flex-row justify-between">
