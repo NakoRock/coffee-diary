@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, ScrollView, StyleSheet, Platform } from 'react-native';
 import { Text, TextInput, Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
@@ -35,6 +35,15 @@ export const ExtractionScreen: React.FC = () => {
   const formatTime = (milliseconds: number): string => {
     const seconds = Math.floor(milliseconds / 1000);
     return `${seconds}秒`;
+  };
+
+  const formatDigitalTime = (milliseconds: number): string => {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
   };
 
   const startTimer = () => {
@@ -164,6 +173,9 @@ export const ExtractionScreen: React.FC = () => {
     }
   };
 
+  const latestRecordedWater = laps.length > 0 ? laps[laps.length - 1].waterAmount : 0;
+  const displayWaterAmount = showWaterInput ? currentWaterAmount : latestRecordedWater;
+
   return (
     <View className="flex-1">
       <Appbar.Header style={{ backgroundColor: CoffeeColors.primary, elevation: 4 }}>
@@ -232,9 +244,22 @@ export const ExtractionScreen: React.FC = () => {
 
           {/* タイマーセクション */}
           <View style={[styles.section, styles.timerSection]} className="mb-5 items-center py-8">
-            <View className="items-center mb-6">
-              <Text style={styles.timerText}>{formatTime(currentTime)}</Text>
-              <Text style={styles.timerLabel}>経過時間</Text>
+            <View style={styles.scaleDisplayWrapper}>
+              <View style={styles.scaleDisplayTop}>
+                <Text style={styles.scaleBrand}>COFFEE SCALE</Text>
+              </View>
+              <View style={styles.scaleDisplayBottom}>
+                <View style={styles.displayColumn}>
+                  <Text style={styles.digitalValue}>{formatDigitalTime(currentTime)}</Text>
+                  <Text style={styles.displayLabel}>TIMER</Text>
+                </View>
+                <View style={[styles.displayColumn, styles.displaySeparator]}>
+                  <Text style={styles.digitalValue}>
+                    {displayWaterAmount.toString().padStart(3, '0')}
+                  </Text>
+                  <Text style={styles.displayLabel}>GRAM</Text>
+                </View>
+              </View>
             </View>
           </View>
 
@@ -301,6 +326,22 @@ export const ExtractionScreen: React.FC = () => {
           )}
         </ScrollView>
 
+        <View style={styles.scaleBaseContainer}>
+          <View style={styles.scaleBase}>
+            <View style={styles.scaleRuler}>
+              {Array.from({ length: 21 }).map((_, index) => {
+                const isMajor = index % 5 === 0;
+                return (
+                  <View
+                    key={index}
+                    style={[styles.scaleTick, isMajor ? styles.scaleTickMajor : styles.scaleTickMinor]}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        </View>
+
         {/* 固定フッター - 注湯量入力モーダル表示中は非表示 */}
         {!showWaterInput && (
           <View style={styles.footer}>
@@ -338,7 +379,7 @@ const styles = StyleSheet.create({
     ...CoffeeStyles.section,
   },
   scrollContainer: {
-    paddingBottom: 90, // フッターの高さ分の余白
+    paddingBottom: 240, // フッターとスケールベースの高さ分の余白
   },
   // カスタムカラーと複雑なスタイルのみ保持
   sectionTitle: {
@@ -349,13 +390,65 @@ const styles = StyleSheet.create({
   timerSection: {
     paddingVertical: 32,
   },
-  timerText: {
-    ...CoffeeTypography.timer,
-    marginBottom: 8,
+  scaleDisplayWrapper: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#060606',
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    shadowColor: 'rgba(0, 0, 0, 0.5)',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  timerLabel: {
-    ...CoffeeTypography.caption,
-    color: CoffeeColors.textLight,
+  scaleDisplayTop: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: '#0C0C0E',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  scaleBrand: {
+    fontSize: 12,
+    letterSpacing: 4,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: '600',
+  },
+  scaleDisplayBottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 28,
+    paddingHorizontal: 28,
+    backgroundColor: '#060606',
+  },
+  displayColumn: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  displaySeparator: {
+    borderLeftWidth: 1,
+    borderLeftColor: 'rgba(255, 255, 255, 0.08)',
+    marginLeft: 24,
+    paddingLeft: 24,
+  },
+  digitalValue: {
+    fontSize: 48,
+    color: '#3DD9FF',
+    letterSpacing: 6,
+    fontWeight: '500',
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
+    textShadowColor: 'rgba(61, 217, 255, 0.45)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
+  },
+  displayLabel: {
+    marginTop: 8,
+    fontSize: 12,
+    letterSpacing: 2,
+    color: 'rgba(255, 255, 255, 0.5)',
   },
   startButton: {
     ...CoffeeStyles.accentButton,
@@ -468,6 +561,40 @@ const styles = StyleSheet.create({
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.surface,
     fontWeight: '600',
+  },
+  scaleBaseContainer: {
+    paddingHorizontal: 24,
+    marginBottom: 140,
+  },
+  scaleBase: {
+    backgroundColor: '#0F0F0F',
+    borderRadius: 28,
+    height: 100,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    shadowColor: 'rgba(0, 0, 0, 0.4)',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  scaleRuler: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    height: 28,
+  },
+  scaleTick: {
+    width: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    borderRadius: 2,
+  },
+  scaleTickMajor: {
+    height: 24,
+  },
+  scaleTickMinor: {
+    height: 12,
   },
   modalCancelButton: {
     ...CoffeeStyles.outlinedButton,
