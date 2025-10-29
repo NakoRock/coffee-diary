@@ -175,15 +175,6 @@ export const ExtractionScreen: React.FC = () => {
 
   const latestRecordedWater = laps.length > 0 ? laps[laps.length - 1].waterAmount : 0;
   const displayWaterAmount = showWaterInput ? currentWaterAmount : latestRecordedWater;
-  const scaleTicks = React.useMemo(
-    () =>
-      Array.from({ length: 11 }).map((_, index) => ({
-        value: index * 50,
-        isMajor: index % 2 === 0,
-      })),
-    []
-  );
-
   return (
     <View className="flex-1">
       <Appbar.Header style={{ backgroundColor: CoffeeColors.primary, elevation: 4 }}>
@@ -334,36 +325,6 @@ export const ExtractionScreen: React.FC = () => {
           )}
         </ScrollView>
 
-        <View style={styles.scaleBaseContainer}>
-          <View style={styles.scaleBase}>
-            <View style={styles.scaleRulerTrack}>
-              <View style={styles.scaleRulerNotches}>
-                {scaleTicks.map((tick, index) => (
-                  <View key={tick.value} style={styles.scaleTickWrapper}>
-                    <View
-                      style={[
-                        styles.scaleTick,
-                        tick.isMajor ? styles.scaleTickMajor : styles.scaleTickMinor,
-                      ]}
-                    />
-                    {tick.isMajor && (
-                      <Text
-                        style={[
-                          styles.scaleTickLabel,
-                          styles.scaleTickLabelMajor,
-                          index === 0 && styles.scaleTickLabelEdgeStart,
-                          index === scaleTicks.length - 1 && styles.scaleTickLabelEdgeEnd,
-                        ]}>
-                        {tick.value}
-                      </Text>
-                    )}
-                  </View>
-                ))}
-              </View>
-            </View>
-          </View>
-        </View>
-
         {/* 固定フッター - 注湯量入力モーダル表示中は非表示 */}
         {!showWaterInput && (
           <View style={styles.footer}>
@@ -401,7 +362,7 @@ const styles = StyleSheet.create({
     ...CoffeeStyles.section,
   },
   scrollContainer: {
-    paddingBottom: 240, // フッターとスケールベースの高さ分の余白
+    paddingBottom: 160, // フッター分の余白
   },
   // カスタムカラーと複雑なスタイルのみ保持
   sectionTitle: {
@@ -583,68 +544,6 @@ const styles = StyleSheet.create({
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.surface,
     fontWeight: '600',
-  },
-  scaleBaseContainer: {
-    paddingHorizontal: 24,
-    marginBottom: 140,
-  },
-  scaleBase: {
-    backgroundColor: '#0F0F0F',
-    borderRadius: 28,
-    height: 110,
-    justifyContent: 'flex-end',
-    paddingHorizontal: 28,
-    paddingBottom: 28,
-    shadowColor: 'rgba(0, 0, 0, 0.4)',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  scaleRulerTrack: {
-    width: '100%',
-    height: 42,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    paddingHorizontal: 18,
-    justifyContent: 'center',
-    backgroundColor: '#050505',
-  },
-  scaleRulerNotches: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  scaleTickWrapper: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  scaleTick: {
-    width: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.75)',
-    borderRadius: 2,
-  },
-  scaleTickMajor: {
-    height: 26,
-  },
-  scaleTickMinor: {
-    height: 16,
-  },
-  scaleTickLabel: {
-    marginTop: 6,
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  scaleTickLabelMajor: {
-    color: 'rgba(255, 255, 255, 0.75)',
-    fontWeight: '600',
-  },
-  scaleTickLabelEdgeStart: {
-    alignSelf: 'flex-start',
-  },
-  scaleTickLabelEdgeEnd: {
-    alignSelf: 'flex-end',
   },
   modalCancelButton: {
     ...CoffeeStyles.outlinedButton,
