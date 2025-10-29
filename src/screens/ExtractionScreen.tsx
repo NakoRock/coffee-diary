@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, ScrollView, StyleSheet, Platform } from 'react-native';
-import { Text, TextInput, Appbar } from 'react-native-paper';
+import { Text, Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
 
@@ -16,11 +16,6 @@ export const ExtractionScreen: React.FC = () => {
   const [currentWaterAmount, setCurrentWaterAmount] = useState(0);
   const [showWaterInput, setShowWaterInput] = useState(false);
   const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
-
-  // 入力フォーム関連のstate
-  const [beanType, setBeanType] = useState('');
-  const [beanAmount, setBeanAmount] = useState('');
-  const [temperature, setTemperature] = useState('');
 
   useEffect(() => {
     let interval: number;
@@ -47,20 +42,6 @@ export const ExtractionScreen: React.FC = () => {
   };
 
   const startTimer = () => {
-    // 基本入力項目のバリデーション
-    if (!beanType.trim()) {
-      alert('豆の種類を入力してください');
-      return;
-    }
-    if (!beanAmount.trim() || parseFloat(beanAmount) <= 0) {
-      alert('豆の量を正しく入力してください');
-      return;
-    }
-    if (!temperature.trim() || parseFloat(temperature) <= 0) {
-      alert('お湯の温度を正しく入力してください');
-      return;
-    }
-
     const now = Date.now();
     setStartTime(now);
     setLastLapTime(now);
@@ -129,10 +110,7 @@ export const ExtractionScreen: React.FC = () => {
     // NewEntryScreenに渡すデータを構築
     const extractionData = {
       date: new Date().toISOString(),
-      beanType: beanType,
       extractionSteps: extractionSteps,
-      temperature: parseFloat(temperature) || 0,
-      beanAmount: parseFloat(beanAmount) || 0,
       waterAmount: totalWaterUsed,
       extractionEndTime: Math.floor(currentTime / 1000), // ミリ秒を秒に変換
     };
@@ -191,36 +169,6 @@ export const ExtractionScreen: React.FC = () => {
           style={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled">
-          {/* 入力フォームセクション（タイマー停止時のみ表示） */}
-          {!isTimerRunning && (
-            <View style={[styles.section]} className="mb-5">
-              <Text style={styles.sectionTitle}>抽出設定</Text>
-              <View style={styles.divider} />
-              <TextInput
-                label="豆の種類"
-                value={beanType}
-                onChangeText={setBeanType}
-                style={styles.input}
-              />
-              <View className="flex-row justify-between">
-                <TextInput
-                  label="豆の量 (g)"
-                  value={beanAmount}
-                  onChangeText={setBeanAmount}
-                  keyboardType="numeric"
-                  style={[styles.input, styles.halfInput]}
-                />
-                <TextInput
-                  label="お湯の温度 (℃)"
-                  value={temperature}
-                  onChangeText={setTemperature}
-                  keyboardType="numeric"
-                  style={[styles.input, styles.halfInput]}
-                />
-              </View>
-            </View>
-          )}
-
           {/* 抽出手順説明セクション（タイマー実行中のみ表示） */}
           {isTimerRunning && (
             <View style={[styles.section]} className="mb-5">
