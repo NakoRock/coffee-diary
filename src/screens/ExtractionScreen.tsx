@@ -1,13 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Platform,
-  PanResponder,
-  GestureResponderEvent,
-} from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, TouchableOpacity, ScrollView, StyleSheet, Platform } from 'react-native';
 import { Text, Appbar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { CoffeeColors, CoffeeTypography, CoffeeStyles } from '../../constants/CoffeeTheme';
@@ -23,9 +15,8 @@ export const ExtractionScreen: React.FC = () => {
   const [currentWaterAmount, setCurrentWaterAmount] = useState(0);
   const [recordStartTime, setRecordStartTime] = useState<number | null>(null);
 
-  const KNOB_MIN = 0;
-  const KNOB_MAX = 500;
-  const knobRadius = 100;
+  const WATER_MIN = 0;
+  const WATER_MAX = 500;
 
   useEffect(() => {
     let interval: number;
@@ -140,55 +131,11 @@ export const ExtractionScreen: React.FC = () => {
     return Math.min(Math.max(value, min), max);
   }, []);
 
-  const updateAmountFromAngle = useCallback(
-    (angle: number) => {
-      const normalizedAngle = ((angle + 450) % 360 + 360) % 360;
-      const ratio = normalizedAngle / 360;
-      const grams = Math.round(KNOB_MIN + ratio * (KNOB_MAX - KNOB_MIN));
-      setCurrentWaterAmount((prev) => {
-        if (prev === grams) {
-          return prev;
-        }
-        return clamp(grams, KNOB_MIN, KNOB_MAX);
-      });
-    },
-    [KNOB_MIN, KNOB_MAX, clamp],
-  );
-
-  const handleKnobGesture = useCallback(
-    (event: GestureResponderEvent) => {
-      const { locationX, locationY } = event.nativeEvent;
-      const dx = locationX - knobRadius;
-      const dy = knobRadius - locationY;
-      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-      updateAmountFromAngle(angle);
-    },
-    [knobRadius, updateAmountFromAngle],
-  );
-
-  const knobResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponder: () => true,
-        onPanResponderGrant: handleKnobGesture,
-        onPanResponderMove: (event) => handleKnobGesture(event),
-      }),
-    [handleKnobGesture],
-  );
-
-  const knobAngle = useMemo(() => {
-    if (KNOB_MAX === KNOB_MIN) {
-      return 0;
-    }
-    return ((currentWaterAmount - KNOB_MIN) / (KNOB_MAX - KNOB_MIN)) * 360;
-  }, [KNOB_MAX, KNOB_MIN, currentWaterAmount]);
-
   const adjustWaterAmount = useCallback(
     (delta: number) => {
-      setCurrentWaterAmount((prev) => clamp(prev + delta, KNOB_MIN, KNOB_MAX));
+      setCurrentWaterAmount((prev) => clamp(prev + delta, WATER_MIN, WATER_MAX));
     },
-    [KNOB_MIN, KNOB_MAX, clamp],
+    [WATER_MIN, WATER_MAX, clamp],
   );
 
   const resetWaterAmount = useCallback(() => {
@@ -228,7 +175,7 @@ export const ExtractionScreen: React.FC = () => {
                   • 追加でお湯を注ぐ前に「注湯開始」をタップ。
                 </Text>
                 <Text style={styles.extractionStepItem}>
-                  • 注湯中はダイヤルを回して注湯量を調整。
+                  • 注湯中はボタンで注湯量を調整。
                 </Text>
                 <Text style={styles.extractionStepItem}>
                   • 次の「注湯開始」または「完了」を押すと前回の記録が保存されます。
@@ -259,56 +206,36 @@ export const ExtractionScreen: React.FC = () => {
             </View>
           </View>
 
-          <View style={[styles.section, styles.knobSection]} className="mb-5 items-center">
-            <Text style={styles.knobTitle}>注湯量コントロール</Text>
-            <Text style={styles.knobDescription}>
-              ダイヤルを回して次の注湯量を調整できます。リセットで直前の値に戻ります。
+          <View style={[styles.section, styles.controlSection]} className="mb-5 items-center">
+            <Text style={styles.controlTitle}>注湯量コントロール</Text>
+            <Text style={styles.controlDescription}>
+              ボタンで次の注湯量を調整できます。リセットで直前の値に戻ります。
             </Text>
-            <View style={styles.knobWrapper}>
-              <View
-                style={styles.knobTouchableArea}
-                {...knobResponder.panHandlers}
-                accessible
-                accessibilityRole="adjustable"
-                accessibilityLabel="注湯量設定ダイヤル"
-                accessibilityHint={`現在の設定は ${currentWaterAmount} グラムです`}>
-                <View style={styles.knobContainer}>
-                  <View style={styles.knobCircle}>
-                    <View style={[styles.knobIndicator, { transform: [{ rotate: `${knobAngle}deg` }] }]}>
-                      <View style={styles.knobIndicatorStem} />
-                      <View style={styles.knobIndicatorHead} />
-                    </View>
-                    <View style={styles.knobValueContainer}>
-                      <Text style={styles.knobValue}>{currentWaterAmount}</Text>
-                      <Text style={styles.knobValueUnit}>g</Text>
-                    </View>
-                  </View>
+            <View style={styles.controlWrapper}>
+              <View style={styles.amountDisplay}>
+                <Text style={styles.amountValue}>{currentWaterAmount}</Text>
+                <Text style={styles.amountUnit}>g</Text>
+              </View>
+              {[100, 10, 1].map((step) => (
+                <View key={step} style={styles.adjustRow}>
+                  <TouchableOpacity
+                    style={[styles.adjustButton, styles.adjustButtonSecondary]}
+                    onPress={() => adjustWaterAmount(-step)}
+                    accessibilityLabel={`${step}グラム減らす`}>
+                    <Text style={styles.adjustButtonText}>-{step}g</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.adjustButton}
+                    onPress={() => adjustWaterAmount(step)}
+                    accessibilityLabel={`${step}グラム増やす`}>
+                    <Text style={styles.adjustButtonText}>+{step}g</Text>
+                  </TouchableOpacity>
                 </View>
-              </View>
-              <View className="flex-row justify-between w-full mt-4">
-                <TouchableOpacity
-                  style={[styles.knobAdjustButton, styles.knobAdjustButtonSecondary]}
-                  onPress={() => adjustWaterAmount(-5)}>
-                  <Text style={styles.knobAdjustButtonText}>-5g</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.knobAdjustButton} onPress={() => adjustWaterAmount(5)}>
-                  <Text style={styles.knobAdjustButtonText}>+5g</Text>
-                </TouchableOpacity>
-              </View>
-              <View className="flex-row justify-between w-full mt-3">
-                <TouchableOpacity
-                  style={[styles.knobAdjustButton, styles.knobAdjustButtonSecondary]}
-                  onPress={() => adjustWaterAmount(-1)}>
-                  <Text style={styles.knobAdjustButtonText}>-1g</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.knobAdjustButton} onPress={() => adjustWaterAmount(1)}>
-                  <Text style={styles.knobAdjustButtonText}>+1g</Text>
-                </TouchableOpacity>
-              </View>
+              ))}
               <TouchableOpacity style={styles.resetButton} onPress={resetWaterAmount}>
                 <Text style={styles.resetButtonText}>リセット</Text>
               </TouchableOpacity>
-              <Text style={styles.knobInfoText}>
+              <Text style={styles.controlInfoText}>
                 最新の記録: {latestRecordedWater}g
                 {recordStartTime ? '（計測中）' : ''}
               </Text>
@@ -492,107 +419,70 @@ const styles = StyleSheet.create({
     color: CoffeeColors.primary,
     fontWeight: '600',
   },
-  knobSection: {
+  controlSection: {
     alignItems: 'center',
   },
-  knobTitle: {
+  controlTitle: {
     ...CoffeeTypography.bodyLarge,
     color: CoffeeColors.primary,
     fontWeight: '600',
     marginBottom: 8,
   },
-  knobDescription: {
+  controlDescription: {
     ...CoffeeTypography.bodySmall,
     color: CoffeeColors.textLight,
     textAlign: 'center',
     marginBottom: 16,
     paddingHorizontal: 8,
   },
-  knobWrapper: {
+  controlWrapper: {
     width: '100%',
     alignItems: 'center',
   },
-  knobTouchableArea: {
-    width: 220,
-    height: 220,
+  amountDisplay: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  knobContainer: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
     backgroundColor: CoffeeColors.overlayDark,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 4,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    position: 'relative',
+    borderRadius: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    marginBottom: 20,
+    minWidth: 200,
   },
-  knobCircle: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  knobIndicator: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingTop: 24,
-  },
-  knobIndicatorStem: {
-    width: 2,
-    height: '35%',
-    borderRadius: 1,
-    backgroundColor: CoffeeColors.accent,
-  },
-  knobIndicatorHead: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: CoffeeColors.accent,
-    marginTop: 6,
-    shadowColor: CoffeeColors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-  },
-  knobValueContainer: {
-    alignItems: 'center',
-  },
-  knobValue: {
+  amountValue: {
     ...CoffeeTypography.headerLarge,
     color: CoffeeColors.primary,
+    marginRight: 8,
   },
-  knobValueUnit: {
-    ...CoffeeTypography.bodySmall,
+  amountUnit: {
+    ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.textLight,
-    marginTop: 4,
   },
-  knobAdjustButton: {
+  adjustRow: {
+    flexDirection: 'row',
+    width: '100%',
+    maxWidth: 320,
+    marginBottom: 12,
+  },
+  adjustButton: {
     ...CoffeeStyles.primaryButton,
     flex: 1,
     marginHorizontal: 4,
     paddingVertical: 12,
     alignItems: 'center',
   },
-  knobAdjustButtonSecondary: {
+  adjustButtonSecondary: {
     backgroundColor: CoffeeColors.overlayDark,
     borderWidth: 1,
     borderColor: CoffeeColors.primary,
   },
-  knobAdjustButtonText: {
+  adjustButtonText: {
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.surface,
     fontWeight: '600',
   },
-  knobInfoText: {
+  controlInfoText: {
     ...CoffeeTypography.bodySmall,
     color: CoffeeColors.textLight,
     marginTop: 12,
