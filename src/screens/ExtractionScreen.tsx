@@ -216,22 +216,25 @@ export const ExtractionScreen: React.FC = () => {
                 <Text style={styles.amountValue}>{currentWaterAmount}</Text>
                 <Text style={styles.amountUnit}>g</Text>
               </View>
-              {[100, 10, 1].map((step) => (
-                <View key={step} style={styles.adjustRow}>
-                  <TouchableOpacity
-                    style={[styles.adjustButton, styles.adjustButtonSecondary]}
-                    onPress={() => adjustWaterAmount(-step)}
-                    accessibilityLabel={`${step}グラム減らす`}>
-                    <Text style={styles.adjustButtonText}>-{step}g</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.adjustButton}
-                    onPress={() => adjustWaterAmount(step)}
-                    accessibilityLabel={`${step}グラム増やす`}>
-                    <Text style={styles.adjustButtonText}>+{step}g</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
+              <View style={styles.adjustGrid}>
+                {[100, 10, 1].map((step) => (
+                  <View key={step} style={styles.adjustColumn}>
+                    <TouchableOpacity
+                      style={styles.adjustButton}
+                      onPress={() => adjustWaterAmount(step)}
+                      accessibilityLabel={`${step}グラム増やす`}>
+                      <Text style={styles.adjustButtonText}>+{step}g</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.adjustStepLabel}>{step}g</Text>
+                    <TouchableOpacity
+                      style={[styles.adjustButton, styles.adjustButtonSecondary]}
+                      onPress={() => adjustWaterAmount(-step)}
+                      accessibilityLabel={`${step}グラム減らす`}>
+                      <Text style={styles.adjustButtonText}>-{step}g</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
               <TouchableOpacity style={styles.resetButton} onPress={resetWaterAmount}>
                 <Text style={styles.resetButtonText}>リセット</Text>
               </TouchableOpacity>
@@ -459,17 +462,11 @@ const styles = StyleSheet.create({
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.textLight,
   },
-  adjustRow: {
-    flexDirection: 'row',
-    width: '100%',
-    maxWidth: 320,
-    marginBottom: 12,
-  },
   adjustButton: {
     ...CoffeeStyles.primaryButton,
-    flex: 1,
-    marginHorizontal: 4,
-    paddingVertical: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minWidth: 72,
     alignItems: 'center',
   },
   adjustButtonSecondary: {
@@ -481,6 +478,27 @@ const styles = StyleSheet.create({
     ...CoffeeTypography.bodyMedium,
     color: CoffeeColors.surface,
     fontWeight: '600',
+  },
+  adjustGrid: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    marginBottom: 12,
+  },
+  adjustColumn: {
+    alignItems: 'center',
+    marginHorizontal: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 16,
+    backgroundColor: CoffeeColors.overlayDark,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  adjustStepLabel: {
+    ...CoffeeTypography.bodySmall,
+    color: CoffeeColors.textLight,
+    marginVertical: 6,
   },
   controlInfoText: {
     ...CoffeeTypography.bodySmall,
